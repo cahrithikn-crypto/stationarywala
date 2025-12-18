@@ -1,0 +1,124 @@
+// =============================
+// FULL STACK STATIONERY E-COMMERCE (NEXT.JS + RAZORPAY + MONGODB)
+// =============================
+
+// ---------- package.json ----------
+{
+  "name": "stationery-store",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "14.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "mongoose": "^8.0.0",
+    "razorpay": "^2.9.4",
+    "jsonwebtoken": "^9.0.2",
+    "bcryptjs": "^2.4.3"
+  }
+}
+
+// ---------- lib/db.js ----------
+import mongoose from "mongoose";
+
+export const connectDB = async () => {
+  if (mongoose.connections[0].readyState) return;
+  await mongoose.connect(process.env.MONGODB_URI);
+};
+
+// ---------- models/Product.js ----------
+import mongoose from "mongoose";
+
+const ProductSchema = new mongoose.Schema({
+  name: String,
+  price: Number,
+  stock: Number,
+  image: String,
+  createdAt: { type: Date, default: Date.now }
+});
+
+export default mongoose.models.Product || mongoose.model("Product", ProductSchema);
+
+// ---------- models/Order.js ----------
+import mongoose from "mongoose";
+
+const OrderSchema = new mongoose.Schema({
+  items: Array,
+  total: Number,
+  paymentId: String,
+  status: String,
+  createdAt: { type: Date, default: Date.now }
+});
+
+export default mongoose.models.Order || mongoose.model("Order", OrderSchema);
+
+// ---------- pages/api/products/index.js ----------
+import { connectDB } from "@/lib/db";
+import Product from "@/models/Product";
+
+export default async function handler(req, res) {
+  await connectDB();
+  if (req.method === "GET") {
+    const products = await Product.find();
+    res.json(products);
+  }
+  if (req.method === "POST") {
+    const product = await Product.create(req.body);
+    res.json(product);
+  }
+}
+
+// ---------- pages/api/checkout.js ----------
+import Razorpay from "razorpay";
+
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_SECRET
+});
+
+export default async function handler(req, res) {
+  const order = await razorpay.orders.create({
+    amount: req.body.amount * 100,
+    currency: "INR"
+  });
+  res.json(order);
+}
+
+// ---------- pages/index.js ----------
+import { useEffect, useState } from "react";
+
+export default function Home() {
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    fetch("/api/products").then(res => res.json()).then(setProducts);
+  }, []);
+
+  return (
+    <div style={{ padding: 20 }}>
+      <h1>📝 Stationery Store</h1>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 20 }}>
+        {products.map(p => (
+          <div key={p._id} style={{ border: "1px solid #ccc", padding: 10 }}>
+            <h3>{p.name}</h3>
+            <p>₹{p.price}</p>
+            <button>Add to Cart</button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ---------- .env.local ----------
+MONGODB_URI=your_mongodb_url
+RAZORPAY_KEY_ID=your_key
+RAZORPAY_SECRET=your_secret
+
+// =============================
+// DEPLOY ON VERCEL → READY TO SELL
+// =============================
