@@ -1,5 +1,6 @@
-import { connectDB } from "../../../lib/db";
-import Product from "../../../models/Product";
+import { connectDB } from "../../../../lib/db";
+import Product from "../../../../models/Product";
+
 
 export default async function handler(req, res) {
   await connectDB();
