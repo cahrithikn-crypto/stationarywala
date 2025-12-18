@@ -1,5 +1,5 @@
-import { connectDB } from "@/lib/db";
-import Product from "@/models/Product";
+import { connectDB } from "../../../lib/db";
+import Product from "../../../models/Product";
 
 export default async function handler(req, res) {
   await connectDB();
@@ -14,5 +14,5 @@ export default async function handler(req, res) {
     return res.status(201).json(product);
   }
 
-  res.status(405).json({ message: "Method not allowed" });
+  return res.status(405).json({ message: "Method not allowed" });
 }
