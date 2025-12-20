@@ -1,5 +1,18 @@
-import { connectDB } from "lib/db";
-import Product from "models/Product";
+import mongoose from "mongoose";
+
+const ProductSchema = new mongoose.Schema({
+  name: String,
+  price: Number,
+  stock: Number
+});
+
+const Product =
+  mongoose.models.Product || mongoose.model("Product", ProductSchema);
+
+async function connectDB() {
+  if (mongoose.connection.readyState >= 1) return;
+  await mongoose.connect(process.env.MONGODB_URI);
+}
 
 export default async function handler(req, res) {
   await connectDB();
