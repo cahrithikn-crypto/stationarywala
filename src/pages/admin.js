@@ -21,7 +21,14 @@ export default function Admin() {
     const data = await res.json();
     if (data.success) {
       setAuthorized(true);
-      localStorage.setItem("admin_auth", "true");
+      localStorage.setItem(
+  "admin_auth",
+  JSON.stringify({
+    loggedIn: true,
+    expires: Date.now() + 30 * 60 * 1000 // 30 minutes
+  })
+);
+;
     } else {
       setError("Wrong password");
     }
@@ -58,9 +65,14 @@ export default function Admin() {
   }
 
   useEffect(() => {
-    if (localStorage.getItem("admin_auth") === "true") {
-      setAuthorized(true);
-      fetchProducts();
+   const session = JSON.parse(localStorage.getItem("admin_auth"));
+if (session && session.loggedIn && session.expires > Date.now()) {
+  setAuthorized(true);
+  fetchProducts();
+} else {
+  localStorage.removeItem("admin_auth");
+}
+
     }
   }, []);
 
@@ -122,3 +134,9 @@ export default function Admin() {
     </div>
   );
 }
+
+function logout() {
+  localStorage.removeItem("admin_auth");
+  setAuthorized(false);
+}
+
