@@ -35,13 +35,18 @@ export default async function handler(req, res) {
     return res.status(201).json(product);
   }
 
-  if (req.method === "DELETE") {
-    const { id } = req.query;
-    await Product.findByIdAndDelete(id);
-    return res.status(200).json({ success: true });
+ if (req.method === "DELETE") {
+  if (!isAdmin(req)) {
+    return res.status(403).json({ error: "Unauthorized" });
   }
+  const { id } = req.query;
+  await Product.findByIdAndDelete(id);
+  return res.status(200).json({ success: true });
+}
+
 
   res.status(405).json({ message: "Method not allowed" });
 }
+
 
 
