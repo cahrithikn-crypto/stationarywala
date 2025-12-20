@@ -43,13 +43,14 @@ export default function Admin() {
   async function addProduct(e) {
     e.preventDefault();
     await fetch("/api/products", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name,
-        price: Number(price),
-        stock: Number(stock),
-      }),
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "x-admin-auth": process.env.NEXT_PUBLIC_ADMIN_KEY
+  },
+  body: JSON.stringify({ name, price: Number(price), stock: Number(stock) })
+});
+
     });
     setName("");
     setPrice("");
@@ -58,11 +59,12 @@ export default function Admin() {
   }
 
   async function deleteProduct(id) {
-    await fetch("/api/products?id=" + id, {
-      method: "DELETE",
-    });
-    fetchProducts();
+   await fetch("/api/products?id=" + id, {
+  method: "DELETE",
+  headers: {
+    "x-admin-auth": process.env.NEXT_PUBLIC_ADMIN_KEY
   }
+});
 
   useEffect(() => {
    const session = JSON.parse(localStorage.getItem("admin_auth"));
@@ -139,4 +141,5 @@ function logout() {
   localStorage.removeItem("admin_auth");
   setAuthorized(false);
 }
+
 
