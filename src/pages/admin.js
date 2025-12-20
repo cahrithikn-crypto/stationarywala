@@ -12,6 +12,7 @@ export default function Admin() {
 
   async function login(e) {
     e.preventDefault();
+
     const res = await fetch("/api/admin-login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -19,19 +20,25 @@ export default function Admin() {
     });
 
     const data = await res.json();
+
     if (data.success) {
-      setAuthorized(true);
       localStorage.setItem(
-  "admin_auth",
-  JSON.stringify({
-    loggedIn: true,
-    expires: Date.now() + 30 * 60 * 1000 // 30 minutes
-  })
-);
-;
+        "admin_auth",
+        JSON.stringify({
+          loggedIn: true,
+          expires: Date.now() + 30 * 60 * 1000, // 30 minutes
+        })
+      );
+      setAuthorized(true);
+      fetchProducts();
     } else {
       setError("Wrong password");
     }
+  }
+
+  function logout() {
+    localStorage.removeItem("admin_auth");
+    setAuthorized(false);
   }
 
   async function fetchProducts() {
@@ -42,16 +49,17 @@ export default function Admin() {
 
   async function addProduct(e) {
     e.preventDefault();
-    await fetch("/api/products", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    "x-admin-auth": process.env.NEXT_PUBLIC_ADMIN_KEY
-  },
-  body: JSON.stringify({ name, price: Number(price), stock: Number(stock) })
-});
 
+    await fetch("/api/products", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name,
+        price: Number(price),
+        stock: Number(stock),
+      }),
     });
+
     setName("");
     setPrice("");
     setStock("");
@@ -59,22 +67,20 @@ export default function Admin() {
   }
 
   async function deleteProduct(id) {
-   await fetch("/api/products?id=" + id, {
-  method: "DELETE",
-  headers: {
-    "x-admin-auth": process.env.NEXT_PUBLIC_ADMIN_KEY
+    await fetch("/api/products?id=" + id, {
+      method: "DELETE",
+    });
+    fetchProducts();
   }
-});
 
   useEffect(() => {
-   const session = JSON.parse(localStorage.getItem("admin_auth"));
-if (session && session.loggedIn && session.expires > Date.now()) {
-  setAuthorized(true);
-  fetchProducts();
-} else {
-  localStorage.removeItem("admin_auth");
-}
+    const session = JSON.parse(localStorage.getItem("admin_auth"));
 
+    if (session && session.loggedIn && session.expires > Date.now()) {
+      setAuthorized(true);
+      fetchProducts();
+    } else {
+      localStorage.removeItem("admin_auth");
     }
   }, []);
 
@@ -100,8 +106,11 @@ if (session && session.loggedIn && session.expires > Date.now()) {
   return (
     <div style={{ padding: 30 }}>
       <h1>Admin – Stationarywala</h1>
+      <button onClick={logout} style={{ marginBottom: 20 }}>
+        Logout
+      </button>
 
-      <form onSubmit={addProduct}>
+      <form onSubmit={addProduct} style={{ marginBottom: 30 }}>
         <input
           placeholder="Product name"
           value={name}
@@ -136,10 +145,3 @@ if (session && session.loggedIn && session.expires > Date.now()) {
     </div>
   );
 }
-
-function logout() {
-  localStorage.removeItem("admin_auth");
-  setAuthorized(false);
-}
-
-
