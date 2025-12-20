@@ -27,6 +27,10 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "POST") {
+  if (!isAdmin(req)) {
+    return res.status(403).json({ error: "Unauthorized" });
+  }
+
     const product = await Product.create(req.body);
     return res.status(201).json(product);
   }
@@ -39,4 +43,5 @@ export default async function handler(req, res) {
 
   res.status(405).json({ message: "Method not allowed" });
 }
+
 
