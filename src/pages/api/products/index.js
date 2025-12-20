@@ -1,3 +1,7 @@
+function isAdmin(req) {
+  return req.headers["x-admin-auth"] === process.env.ADMIN_PASSWORD;
+}
+
 import mongoose from "mongoose";
 
 const ProductSchema = new mongoose.Schema({
@@ -35,3 +39,4 @@ export default async function handler(req, res) {
 
   res.status(405).json({ message: "Method not allowed" });
 }
+
