@@ -1,5 +1,21 @@
-import { connectDB } from "lib/db";
-import Order from "models/Order";
+import mongoose from "mongoose";
+
+const OrderSchema = new mongoose.Schema(
+  {
+    items: Array,
+    total: Number,
+    paymentId: String
+  },
+  { timestamps: true }
+);
+
+const Order =
+  mongoose.models.Order || mongoose.model("Order", OrderSchema);
+
+async function connectDB() {
+  if (mongoose.connection.readyState >= 1) return;
+  await mongoose.connect(process.env.MONGODB_URI);
+}
 
 export default async function handler(req, res) {
   await connectDB();
