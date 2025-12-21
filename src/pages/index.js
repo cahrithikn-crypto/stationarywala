@@ -3,81 +3,158 @@ import Link from "next/link";
 
 export default function Home() {
   const [products, setProducts] = useState([]);
-  const [cart, setCart] = useState([]);
 
+  // --------------------
   // Fetch products
-  useEffect(() => {
-    fetch("/api/products")
-      .then((res) => res.json())
-      .then(setProducts);
-  }, []);
-
-  // Load cart from localStorage
-  useEffect(() => {
-    const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
-    setCart(savedCart);
-  }, []);
-
-  // Add to cart
-  function addToCart(product) {
-    const updatedCart = [...cart, product];
-    setCart(updatedCart);
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
+  // --------------------
+  async function fetchProducts() {
+    const res = await fetch("/api/products");
+    const data = await res.json();
+    setProducts(data);
   }
 
-  return (
-    <div>
-      {/* ================= HEADER ================= */}
-      <header className="header">
-        <h1 className="logo">Stationarywala</h1>
-        <Link href="/cart" className="cart-btn">
-          🛒 Cart ({cart.length})
-        </Link>
-      </header>
+  // --------------------
+  // Add to cart
+  // --------------------
+  function addToCart(product) {
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-      {/* ================= HERO ================= */}
-      <section className="hero">
-        <h2>School & Office Stationery</h2>
-        <p>Best quality stationery at affordable prices</p>
-        <Link href="#products" className="hero-btn">
-          Shop Now
+    const existing = cart.find((item) => item._id === product._id);
+
+    if (existing) {
+      existing.qty += 1;
+    } else {
+      cart.push({ ...product, qty: 1 });
+    }
+
+    localStorage.setItem("cart", JSON.stringify(cart));
+    alert("Added to cart");
+  }
+
+  // --------------------
+  // Load on page open
+  // --------------------
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  return (
+    <div style={{ padding: 20 }}>
+      {/* ================= HEADER ================= */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 30,
+        }}
+      >
+        <h1>📘 Stationarywala</h1>
+
+        <Link href="/cart">
+          <button
+            style={{
+              padding: "8px 14px",
+              background: "#e53935",
+              color: "#fff",
+              border: "none",
+              cursor: "pointer",
+              borderRadius: 4,
+            }}
+          >
+            🛒 Go to Cart
+          </button>
         </Link>
-      </section>
+      </div>
+
+      {/* ================= BANNER ================= */}
+      <div
+        style={{
+          background: "#fbe9e7",
+          padding: 20,
+          borderRadius: 6,
+          marginBottom: 30,
+        }}
+      >
+        <h2>Everything you need for School & Office ✏️</h2>
+        <p>Notebooks, pens, files & more — at best prices</p>
+      </div>
 
       {/* ================= PRODUCTS ================= */}
-      <section id="products" className="products-section">
-        <h2>Popular Products</h2>
+      <h2 style={{ marginBottom: 15 }}>Popular Products</h2>
 
-        <div className="product-grid">
-          {products.map((p) => (
-            <div key={p._id} className="product-card">
-              <img
-                src={p.image || "https://via.placeholder.com/200"}
-                alt={p.name}
-              />
+      {products.length === 0 && <p>No products available</p>}
 
-              <h3>{p.name}</h3>
-              <p className="price">₹{p.price}</p>
-              <p className="stock">
-                {p.stock > 0 ? "In Stock" : "Out of Stock"}
-              </p>
-
-              <button
-                disabled={p.stock === 0}
-                onClick={() => addToCart(p)}
-              >
-                Add to Cart
-              </button>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+          gap: 20,
+        }}
+      >
+        {products.map((p) => (
+          <div
+            key={p._id}
+            style={{
+              border: "1px solid #ddd",
+              padding: 15,
+              borderRadius: 6,
+              background: "#fff",
+            }}
+          >
+            {/* Product Image (optional later) */}
+            <div
+              style={{
+                height: 140,
+                background: "#f5f5f5",
+                marginBottom: 10,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 12,
+                color: "#777",
+              }}
+            >
+              Image coming soon
             </div>
-          ))}
-        </div>
-      </section>
+
+            <h3 style={{ margin: "5px 0" }}>{p.name}</h3>
+            <p style={{ fontWeight: "bold" }}>₹{p.price}</p>
+            <p style={{ fontSize: 12, color: "#555" }}>
+              Stock: {p.stock}
+            </p>
+
+            <button
+              onClick={() => addToCart(p)}
+              style={{
+                marginTop: 10,
+                width: "100%",
+                padding: "8px 0",
+                background: "#1976d2",
+                color: "#fff",
+                border: "none",
+                cursor: "pointer",
+                borderRadius: 4,
+              }}
+            >
+              Add to Cart
+            </button>
+          </div>
+        ))}
+      </div>
 
       {/* ================= FOOTER ================= */}
-      <footer className="footer">
-        <p>© {new Date().getFullYear()} Stationarywala</p>
-        <p>Contact: support@stationarywala.com</p>
-      </footer>
+      <div
+        style={{
+          marginTop: 50,
+          paddingTop: 20,
+          borderTop: "1px solid #ddd",
+          textAlign: "center",
+          color: "#666",
+        }}
+      >
+        © {new Date().getFullYear()} Stationarywala. All rights reserved.
+      </div>
     </div>
   );
 }
