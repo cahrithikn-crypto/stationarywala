@@ -10,6 +10,11 @@ const OrderSchema = new mongoose.Schema(
       type: String,
       enum: ["Paid", "Shipped", "Delivered"],
       default: "Paid"
+    },
+
+    trackingNumber: {
+      type: String,
+      default: ""
     }
   },
   { timestamps: true }
