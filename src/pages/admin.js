@@ -1,4 +1,8 @@
-import { useEffect, useState } from "react";
+import "./globals.css";
+
+export default function App({ Component, pageProps }) {
+  return <Component {...pageProps} />;
+}
 
 export default function Admin() {
   const [authorized, setAuthorized] = useState(false);
@@ -158,3 +162,4 @@ export default function Admin() {
     </div>
   );
 }
+
