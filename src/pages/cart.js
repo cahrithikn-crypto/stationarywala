@@ -3,21 +3,45 @@ import { useEffect, useState } from "react";
 export default function Cart() {
   const [cart, setCart] = useState([]);
 
-  // Load cart from localStorage
+  // Load cart and normalize quantity
   useEffect(() => {
-    const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
-    setCart(savedCart);
+    const saved = JSON.parse(localStorage.getItem("cart")) || [];
+    const normalized = saved.map(item => ({
+      ...item,
+      quantity: item.quantity || 1,
+    }));
+    setCart(normalized);
+    localStorage.setItem("cart", JSON.stringify(normalized));
   }, []);
 
-  // Remove item
-  function removeItem(index) {
-    const updatedCart = cart.filter((_, i) => i !== index);
-    setCart(updatedCart);
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
+  function updateCart(updated) {
+    setCart(updated);
+    localStorage.setItem("cart", JSON.stringify(updated));
   }
 
-  // Calculate total
-  const total = cart.reduce((sum, item) => sum + item.price, 0);
+  function increase(index) {
+    const updated = [...cart];
+    updated[index].quantity += 1;
+    updateCart(updated);
+  }
+
+  function decrease(index) {
+    const updated = [...cart];
+    if (updated[index].quantity > 1) {
+      updated[index].quantity -= 1;
+      updateCart(updated);
+    }
+  }
+
+  function removeItem(index) {
+    const updated = cart.filter((_, i) => i !== index);
+    updateCart(updated);
+  }
+
+  const total = cart.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
 
   return (
     <div style={{ padding: 30 }}>
@@ -33,8 +57,8 @@ export default function Cart() {
               style={{
                 border: "1px solid #ddd",
                 padding: 15,
-                marginBottom: 10,
-                borderRadius: 6,
+                marginBottom: 12,
+                borderRadius: 8,
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
@@ -45,13 +69,23 @@ export default function Cart() {
                 <div>₹{item.price}</div>
               </div>
 
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <button onClick={() => decrease(index)}>➖</button>
+                <strong>{item.quantity}</strong>
+                <button onClick={() => increase(index)}>➕</button>
+              </div>
+
+              <div>
+                ₹{item.price * item.quantity}
+              </div>
+
               <button
                 onClick={() => removeItem(index)}
                 style={{
                   background: "#e53935",
                   color: "#fff",
                   border: "none",
-                  padding: "6px 12px",
+                  padding: "6px 10px",
                   borderRadius: 4,
                   cursor: "pointer",
                 }}
