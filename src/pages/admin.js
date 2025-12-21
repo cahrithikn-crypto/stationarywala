@@ -1,4 +1,12 @@
 import { useState, useEffect } from "react";
+if (typeof window !== "undefined") {
+  if (
+    !localStorage.getItem("admin_auth") &&
+    window.location.pathname === "/admin"
+  ) {
+    // stays on login page
+  }
+}
 
 export default function Admin() {
   const [authorized, setAuthorized] = useState(false);
@@ -195,3 +203,4 @@ export default function Admin() {
     </div>
   );
 }
+
