@@ -47,24 +47,24 @@ export default function Admin() {
     setProducts(data);
   }
 
-  async function addProduct(e) {
-    e.preventDefault();
+async function addProduct(e) {
+  e.preventDefault();
 
-    await fetch("/api/products", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name,
-        price: Number(price),
-        stock: Number(stock),
-      }),
-    });
+  await fetch("/api/products", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name,
+      price: Number(price),
+      stock: Number(stock),
+    }),
+  });
 
-    setName("");
-    setPrice("");
-    setStock("");
-    fetchProducts();
-  }
+  setName("");
+  setPrice("");
+  setStock("");
+  fetchProducts();
+}
 
   async function deleteProduct(id) {
     await fetch("/api/products?id=" + id, {
@@ -145,3 +145,4 @@ export default function Admin() {
     </div>
   );
 }
+
