@@ -3,53 +3,47 @@ import { useEffect, useState } from "react";
 export default function Home() {
   const [products, setProducts] = useState([]);
 
-  async function fetchProducts() {
-    const res = await fetch("/api/products");
-    setProducts(await res.json());
-  }
-
   useEffect(() => {
-    fetchProducts();
+    fetch("/api/products")
+      .then((res) => res.json())
+      .then(setProducts);
   }, []);
 
   return (
-    <div style={{ padding: 30 }}>
-      <h1>Stationarywala</h1>
+    <>
+      {/* HEADER */}
+      <header className="header">
+        <h1>Stationarywala</h1>
+        <button className="cart-btn">🛒 Cart</button>
+      </header>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
-          gap: 20,
-        }}
-      >
-        {products.map((p) => (
-          <div
-            key={p._id}
-            style={{
-              border: "1px solid #ddd",
-              padding: 12,
-              borderRadius: 8,
-            }}
-          >
-            <img
-              src={p.image}
-              alt={p.name}
-              style={{
-                width: "100%",
-                height: 160,
-                objectFit: "cover",
-                borderRadius: 6,
-                marginBottom: 10,
-              }}
-            />
+      {/* HERO */}
+      <section className="hero">
+        <h2>All Your Stationery Needs, One Place ✏️📚</h2>
+        <p>Affordable • Quality • Fast Delivery</p>
+        <button className="hero-btn">Shop Now</button>
+      </section>
 
-            <h3>{p.name}</h3>
-            <p>₹{p.price}</p>
-            <button>Add to Cart</button>
-          </div>
-        ))}
-      </div>
-    </div>
+      {/* PRODUCTS */}
+      <main className="container">
+        <h2 className="section-title">Popular Products</h2>
+
+        <div className="grid">
+          {products.map((p) => (
+            <div className="card" key={p._id}>
+              <img src={p.image} alt={p.name} />
+              <h3>{p.name}</h3>
+              <p className="price">₹{p.price}</p>
+              <button>Add to Cart</button>
+            </div>
+          ))}
+        </div>
+      </main>
+
+      {/* FOOTER */}
+      <footer className="footer">
+        © {new Date().getFullYear()} Stationarywala. All rights reserved.
+      </footer>
+    </>
   );
 }
