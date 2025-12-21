@@ -6,9 +6,13 @@ export default function Admin() {
   const [error, setError] = useState("");
 
   const [products, setProducts] = useState([]);
+  const [orders, setOrders] = useState([]);
+
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("");
+
+  /* ---------------- AUTH ---------------- */
 
   async function login(e) {
     e.preventDefault();
@@ -26,11 +30,12 @@ export default function Admin() {
         "admin_auth",
         JSON.stringify({
           loggedIn: true,
-          expires: Date.now() + 30 * 60 * 1000, // 30 minutes
+          expires: Date.now() + 30 * 60 * 1000, // 30 min
         })
       );
       setAuthorized(true);
       fetchProducts();
+      fetchOrders();
     } else {
       setError("Wrong password");
     }
@@ -41,37 +46,47 @@ export default function Admin() {
     setAuthorized(false);
   }
 
+  /* ---------------- DATA FETCH ---------------- */
+
   async function fetchProducts() {
     const res = await fetch("/api/products");
     const data = await res.json();
     setProducts(data);
   }
 
-async function addProduct(e) {
-  e.preventDefault();
+  async function fetchOrders() {
+    const res = await fetch("/api/orders");
+    const data = await res.json();
+    setOrders(data);
+  }
 
-  await fetch("/api/products", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      name,
-      price: Number(price),
-      stock: Number(stock),
-    }),
-  });
+  /* ---------------- PRODUCT ACTIONS ---------------- */
 
-  setName("");
-  setPrice("");
-  setStock("");
-  fetchProducts();
-}
+  async function addProduct(e) {
+    e.preventDefault();
 
-  async function deleteProduct(id) {
-    await fetch("/api/products?id=" + id, {
-      method: "DELETE",
+    await fetch("/api/products", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name,
+        price: Number(price),
+        stock: Number(stock),
+      }),
     });
+
+    setName("");
+    setPrice("");
+    setStock("");
     fetchProducts();
   }
+
+  async function deleteProduct(id) {
+    await fetch("/api/products?id=" + id, { method: "DELETE" });
+    fetchProducts();
+  }
+
+  /* ---------------- SESSION CHECK ---------------- */
 
   useEffect(() => {
     const session = JSON.parse(localStorage.getItem("admin_auth"));
@@ -79,10 +94,13 @@ async function addProduct(e) {
     if (session && session.loggedIn && session.expires > Date.now()) {
       setAuthorized(true);
       fetchProducts();
+      fetchOrders();
     } else {
       localStorage.removeItem("admin_auth");
     }
   }, []);
+
+  /* ---------------- LOGIN UI ---------------- */
 
   if (!authorized) {
     return (
@@ -103,13 +121,17 @@ async function addProduct(e) {
     );
   }
 
+  /* ---------------- ADMIN DASHBOARD ---------------- */
+
   return (
-    <div style={{ padding: 30 }}>
+    <div style={{ padding: 30, fontFamily: "Arial" }}>
       <h1>Admin – Stationarywala</h1>
       <button onClick={logout} style={{ marginBottom: 20 }}>
         Logout
       </button>
 
+      {/* ADD PRODUCT */}
+      <h2>Add Product</h2>
       <form onSubmit={addProduct} style={{ marginBottom: 30 }}>
         <input
           placeholder="Product name"
@@ -134,15 +156,16 @@ async function addProduct(e) {
         <button type="submit">Add Product</button>
       </form>
 
+      {/* PRODUCTS */}
       <h2>Products</h2>
-
       {products.map((p) => (
         <div key={p._id} style={{ marginBottom: 10 }}>
           {p.name} – ₹{p.price} – Stock: {p.stock}
           <button onClick={() => deleteProduct(p._id)}>Delete</button>
         </div>
       ))}
-    </div>
-  );
-}
 
+      {/* ORDERS */}
+      <h2 style={{ marginTop: 40 }}>Orders</h2>
+
+      {orders.length === 0
