@@ -154,32 +154,36 @@ export default function Admin() {
         </div>
       ))}
 
-      <h2 style={{ marginTop: 30 }}>Orders</h2>
+     <h2 style={{ marginTop: 30 }}>Orders</h2>
 
-      {orders.length === 0 && <p>No orders yet</p>}
+{orders.length === 0 && <p>No orders yet</p>}
 
-     {orders.map((o) => (
+{orders.map((o) => (
   <div
     key={o._id}
-    style={{ border: "1px solid #ccc", padding: 10, marginBottom: 10 }}
+    style={{
+      border: "1px solid #ccc",
+      padding: 10,
+      marginBottom: 10,
+    }}
   >
     <div>Date: {new Date(o.createdAt).toLocaleString()}</div>
     <div>Total: ₹{o.total}</div>
     <div>Payment ID: {o.paymentId || "N/A"}</div>
 
-    {/* ORDER STATUS */}
+    {/* STATUS */}
     <div style={{ marginTop: 8 }}>
       <b>Status:</b>{" "}
       <select
-        value={o.status}
+        value={o.status || "Paid"}
         onChange={async (e) => {
           await fetch("/api/orders", {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               id: o._id,
-              status: e.target.value
-            })
+              status: e.target.value,
+            }),
           });
           fetchOrders();
         }}
@@ -190,20 +194,20 @@ export default function Admin() {
       </select>
     </div>
 
-    {/* TRACKING NUMBER */}
+    {/* TRACKING */}
     <div style={{ marginTop: 8 }}>
       <b>Tracking Number:</b>{" "}
       <input
-        placeholder="Enter tracking number"
         value={o.trackingNumber || ""}
-        onChange={async (e) => {
+        placeholder="Enter tracking number"
+        onBlur={async (e) => {
           await fetch("/api/orders", {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               id: o._id,
-              trackingNumber: e.target.value
-            })
+              trackingNumber: e.target.value,
+            }),
           });
           fetchOrders();
         }}
@@ -211,6 +215,7 @@ export default function Admin() {
     </div>
   </div>
 ))}
+
    Status:
             <select
               value={o.status}
@@ -226,4 +231,5 @@ export default function Admin() {
     </div>
   );
 }
+
 
