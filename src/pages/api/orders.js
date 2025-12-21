@@ -9,8 +9,18 @@ export default async function handler(req, res) {
     return res.json(orders);
   }
 
-  if (req.method === "PUT") {
-    const { id, status } = req.body;
+if (req.method === "PUT") {
+  const { id, status, trackingNumber } = req.body;
+
+  const updateData = {};
+  if (status) updateData.status = status;
+  if (trackingNumber !== undefined)
+    updateData.trackingNumber = trackingNumber;
+
+  await Order.findByIdAndUpdate(id, updateData);
+
+  return res.json({ success: true });
+}
 
     if (!["Paid", "Shipped", "Delivered"].includes(status)) {
       return res.status(400).json({ error: "Invalid status" });
@@ -22,4 +32,5 @@ export default async function handler(req, res) {
 
   res.status(405).end();
 }
+
 
