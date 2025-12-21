@@ -1,12 +1,15 @@
-/* =====================================================
-   RESET & BASE
-===================================================== */
+/* ===============================
+   GLOBAL RESET
+================================ */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+/* ===============================
+   BASE THEME (Amazon / Flipkart style)
+================================ */
 html, body {
   font-family: "Segoe UI", Roboto, Arial, sans-serif;
   background-color: #f6f8fb;
@@ -14,224 +17,120 @@ html, body {
   line-height: 1.6;
 }
 
-/* =====================================================
-   GLOBAL TEXT
-===================================================== */
-h1 {
-  font-size: 28px;
-  margin-bottom: 16px;
-  color: #b91c1c;
+/* ===============================
+   COLORS
+================================ */
+:root {
+  --primary-red: #e11b22;
+  --dark-red: #b91c1c;
+  --light-red: #fee2e2;
+  --border: #e5e7eb;
+  --card-bg: #ffffff;
 }
 
-h2 {
-  font-size: 22px;
-  margin: 24px 0 12px;
-  color: #dc2626;
-}
-
-h3 {
-  font-size: 16px;
-  margin-bottom: 8px;
-  color: #374151;
-}
-
-p {
-  font-size: 14px;
-  color: #374151;
-}
-
-/* =====================================================
-   LAYOUT
-===================================================== */
-.container {
-  max-width: 1200px;
-  margin: auto;
-  padding: 24px;
-}
-
-/* =====================================================
-   NAVBAR / HEADER
-===================================================== */
-.navbar {
-  background: #b91c1c;
-  color: white;
-  padding: 14px 24px;
-  font-size: 20px;
+/* ===============================
+   HEADINGS
+================================ */
+h1, h2, h3 {
   font-weight: 600;
-}
-
-/* =====================================================
-   CARDS (Store + Admin)
-===================================================== */
-.card {
-  background: #ffffff;
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 16px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-}
-
-/* =====================================================
-   STORE PRODUCT GRID
-===================================================== */
-.product-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 16px;
-}
-
-.product-card {
-  background: white;
-  border-radius: 8px;
-  padding: 14px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.product-card h3 {
-  font-size: 16px;
-  margin-bottom: 6px;
-}
-
-.product-card .price {
-  font-weight: 700;
-  color: #dc2626;
-  margin-bottom: 10px;
-}
-
-/* =====================================================
-   BUTTONS
-===================================================== */
-button {
-  background-color: #dc2626;
-  color: white;
-  border: none;
-  padding: 10px 14px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
-}
-
-button:hover {
-  background-color: #b91c1c;
-}
-
-button.secondary {
-  background: #f3f4f6;
+  margin-bottom: 12px;
   color: #111827;
 }
 
-button.secondary:hover {
-  background: #e5e7eb;
+/* ===============================
+   BUTTONS
+================================ */
+button {
+  background-color: var(--primary-red);
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s ease;
 }
 
-/* =====================================================
-   FORMS
-===================================================== */
-input,
-select,
-textarea {
+button:hover {
+  background-color: var(--dark-red);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ===============================
+   INPUTS & SELECTS
+================================ */
+input, select {
   width: 100%;
   padding: 10px 12px;
   margin-top: 6px;
   margin-bottom: 12px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border);
   border-radius: 6px;
   font-size: 14px;
 }
 
-input:focus,
-select:focus,
-textarea:focus {
+input:focus, select:focus {
   outline: none;
-  border-color: #dc2626;
-  box-shadow: 0 0 0 1px #dc2626;
+  border-color: var(--primary-red);
 }
 
-/* =====================================================
-   ADMIN LIST ITEMS (Products / Orders)
-===================================================== */
-.admin-item {
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  padding: 12px;
-  margin-bottom: 10px;
+/* ===============================
+   CARD UI (Products, Orders, Admin)
+================================ */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+/* ===============================
+   ADMIN PAGE LAYOUT
+================================ */
+.admin-container {
+  max-width: 1100px;
+  margin: 30px auto;
+  padding: 20px;
+}
+
+.admin-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 20px;
 }
 
-/* =====================================================
-   ORDER BOX (ADMIN)
-===================================================== */
-.order-box {
-  background: #ffffff;
-  border-radius: 8px;
-  padding: 14px;
-  margin-bottom: 14px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+.admin-section {
+  margin-top: 30px;
 }
 
-/* =====================================================
+/* ===============================
    ORDER STATUS BADGES
-===================================================== */
-.badge {
+================================ */
+.status {
+  display: inline-block;
   padding: 4px 10px;
   border-radius: 20px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
 }
 
-.badge.paid {
-  background: #fee2e2;
-  color: #991b1b;
+.status-paid {
+  background: #e0f2fe;
+  color: #0369a1;
 }
 
-.badge.shipped {
+.status-shipped {
   background: #fef3c7;
   color: #92400e;
 }
 
-.badge.delivered {
+.status-delivered {
   background: #dcfce7;
   color: #166534;
-}
-
-/* =====================================================
-   CART
-===================================================== */
-.cart-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 12px;
-  background: white;
-  border-radius: 6px;
-  margin-bottom: 8px;
-}
-
-/* =====================================================
-   UTILITIES
-===================================================== */
-.muted {
-  color: #6b7280;
-  font-size: 13px;
-}
-
-.error {
-  color: #b91c1c;
-  margin-top: 8px;
-}
-
-/* =====================================================
-   FOOTER
-===================================================== */
-footer {
-  text-align: center;
-  margin-top: 40px;
-  color: #6b7280;
-  font-size: 13px;
 }
