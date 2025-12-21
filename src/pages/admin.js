@@ -158,17 +158,60 @@ export default function Admin() {
 
       {orders.length === 0 && <p>No orders yet</p>}
 
-      {orders.map((o) => (
-        <div
-          key={o._id}
-          style={{ border: "1px solid #ccc", padding: 10, marginBottom: 10 }}
-        >
-          <div>Date: {new Date(o.createdAt).toLocaleString()}</div>
-          <div>Total: ₹{o.total}</div>
-          <div>Payment ID: {o.paymentId || "N/A"}</div>
+     {orders.map((o) => (
+  <div
+    key={o._id}
+    style={{ border: "1px solid #ccc", padding: 10, marginBottom: 10 }}
+  >
+    <div>Date: {new Date(o.createdAt).toLocaleString()}</div>
+    <div>Total: ₹{o.total}</div>
+    <div>Payment ID: {o.paymentId || "N/A"}</div>
 
-          <div>
-            Status:
+    {/* ORDER STATUS */}
+    <div style={{ marginTop: 8 }}>
+      <b>Status:</b>{" "}
+      <select
+        value={o.status}
+        onChange={async (e) => {
+          await fetch("/api/orders", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              id: o._id,
+              status: e.target.value
+            })
+          });
+          fetchOrders();
+        }}
+      >
+        <option value="Paid">Paid</option>
+        <option value="Shipped">Shipped</option>
+        <option value="Delivered">Delivered</option>
+      </select>
+    </div>
+
+    {/* TRACKING NUMBER */}
+    <div style={{ marginTop: 8 }}>
+      <b>Tracking Number:</b>{" "}
+      <input
+        placeholder="Enter tracking number"
+        value={o.trackingNumber || ""}
+        onChange={async (e) => {
+          await fetch("/api/orders", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              id: o._id,
+              trackingNumber: e.target.value
+            })
+          });
+          fetchOrders();
+        }}
+      />
+    </div>
+  </div>
+))}
+   Status:
             <select
               value={o.status}
               onChange={(e) => updateStatus(o._id, e.target.value)}
@@ -183,3 +226,4 @@ export default function Admin() {
     </div>
   );
 }
+
