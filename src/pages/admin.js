@@ -1,8 +1,5 @@
 import { useState, useEffect } from "react";
 
-export default function App({ Component, pageProps }) {
-  return <Component {...pageProps} />;
-}
 
 export default function Admin() {
   const [authorized, setAuthorized] = useState(false);
@@ -162,5 +159,6 @@ export default function Admin() {
     </div>
   );
 }
+
 
 
