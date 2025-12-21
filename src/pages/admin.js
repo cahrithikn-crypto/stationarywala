@@ -12,8 +12,6 @@ export default function Admin() {
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("");
 
-  /* ---------------- AUTH ---------------- */
-
   async function login(e) {
     e.preventDefault();
 
@@ -30,12 +28,10 @@ export default function Admin() {
         "admin_auth",
         JSON.stringify({
           loggedIn: true,
-          expires: Date.now() + 30 * 60 * 1000, // 30 min
+          expires: Date.now() + 30 * 60 * 1000,
         })
       );
       setAuthorized(true);
-      fetchProducts();
-      fetchOrders();
     } else {
       setError("Wrong password");
     }
@@ -46,21 +42,15 @@ export default function Admin() {
     setAuthorized(false);
   }
 
-  /* ---------------- DATA FETCH ---------------- */
-
   async function fetchProducts() {
     const res = await fetch("/api/products");
-    const data = await res.json();
-    setProducts(data);
+    setProducts(await res.json());
   }
 
   async function fetchOrders() {
     const res = await fetch("/api/orders");
-    const data = await res.json();
-    setOrders(data);
+    setOrders(await res.json());
   }
-
-  /* ---------------- PRODUCT ACTIONS ---------------- */
 
   async function addProduct(e) {
     e.preventDefault();
@@ -86,8 +76,6 @@ export default function Admin() {
     fetchProducts();
   }
 
-  /* ---------------- SESSION CHECK ---------------- */
-
   useEffect(() => {
     const session = JSON.parse(localStorage.getItem("admin_auth"));
 
@@ -99,8 +87,6 @@ export default function Admin() {
       localStorage.removeItem("admin_auth");
     }
   }, []);
-
-  /* ---------------- LOGIN UI ---------------- */
 
   if (!authorized) {
     return (
@@ -121,18 +107,13 @@ export default function Admin() {
     );
   }
 
-  /* ---------------- ADMIN DASHBOARD ---------------- */
-
   return (
-    <div style={{ padding: 30, fontFamily: "Arial" }}>
+    <div style={{ padding: 30 }}>
       <h1>Admin – Stationarywala</h1>
-      <button onClick={logout} style={{ marginBottom: 20 }}>
-        Logout
-      </button>
+      <button onClick={logout}>Logout</button>
 
-      {/* ADD PRODUCT */}
       <h2>Add Product</h2>
-      <form onSubmit={addProduct} style={{ marginBottom: 30 }}>
+      <form onSubmit={addProduct}>
         <input
           placeholder="Product name"
           value={name}
@@ -153,53 +134,27 @@ export default function Admin() {
           onChange={(e) => setStock(e.target.value)}
           required
         />
-        <button type="submit">Add Product</button>
+        <button type="submit">Add</button>
       </form>
 
-      {/* PRODUCTS */}
       <h2>Products</h2>
       {products.map((p) => (
-        <div key={p._id} style={{ marginBottom: 10 }}>
-          {p.name} – ₹{p.price} – Stock: {p.stock}
+        <div key={p._id}>
+          {p.name} – ₹{p.price} – Stock {p.stock}
           <button onClick={() => deleteProduct(p._id)}>Delete</button>
         </div>
       ))}
 
-    {/* ORDERS */}
-<h2 style={{ marginTop: 40 }}>Orders</h2>
+      <h2 style={{ marginTop: 30 }}>Orders</h2>
+      {orders.length === 0 && <p>No orders yet</p>}
 
-{orders.length === 0 && <p>No orders yet</p>}
-
-{orders.map((o) => (
-  <div
-    key={o._id}
-    style={{
-      border: "1px solid #ccc",
-      padding: 10,
-      marginBottom: 10,
-    }}
-  >
-    <div>
-      <b>Date:</b> {new Date(o.createdAt).toLocaleString()}
+      {orders.map((o) => (
+        <div key={o._id} style={{ border: "1px solid #ccc", marginBottom: 10 }}>
+          <div>Date: {new Date(o.createdAt).toLocaleString()}</div>
+          <div>Total: ₹{o.total}</div>
+          <div>Payment ID: {o.paymentId || "N/A"}</div>
+        </div>
+      ))}
     </div>
-    <div>
-      <b>Total:</b> ₹{o.total}
-    </div>
-    <div>
-      <b>Payment ID:</b> {o.paymentId || "N/A"}
-    </div>
-
-    <div>
-      <b>Items:</b>
-      <ul>
-        {o.items?.map((item, i) => (
-          <li key={i}>
-            {item.name} × {item.qty}
-          </li>
-        ))}
-      </ul>
-    </div>
-  </div>
-))}
-
-
+  );
+}
