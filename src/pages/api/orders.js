@@ -6,31 +6,19 @@ export default async function handler(req, res) {
 
   if (req.method === "GET") {
     const orders = await Order.find().sort({ createdAt: -1 });
-    return res.json(orders);
+    return res.status(200).json(orders);
   }
 
-if (req.method === "PUT") {
-  const { id, status, trackingNumber } = req.body;
+  if (req.method === "PUT") {
+    const { id, status, trackingNumber } = req.body;
 
-  const updateData = {};
-  if (status) updateData.status = status;
-  if (trackingNumber !== undefined)
-    updateData.trackingNumber = trackingNumber;
+    const update = {};
+    if (status) update.status = status;
+    if (trackingNumber !== undefined) update.trackingNumber = trackingNumber;
 
-  await Order.findByIdAndUpdate(id, updateData);
-
-  return res.json({ success: true });
-}
-
-    if (!["Paid", "Shipped", "Delivered"].includes(status)) {
-      return res.status(400).json({ error: "Invalid status" });
-    }
-
-    await Order.findByIdAndUpdate(id, { status });
-    return res.json({ success: true });
+    await Order.findByIdAndUpdate(id, update);
+    return res.status(200).json({ success: true });
   }
 
-  res.status(405).end();
+  res.status(405).json({ error: "Method not allowed" });
 }
-
-
