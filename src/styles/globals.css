@@ -1,6 +1,6 @@
-/* ===============================
+/* =====================================================
    RESET & BASE
-================================ */
+===================================================== */
 * {
   margin: 0;
   padding: 0;
@@ -14,9 +14,9 @@ html, body {
   line-height: 1.6;
 }
 
-/* ===============================
-   HEADINGS
-================================ */
+/* =====================================================
+   GLOBAL TEXT
+===================================================== */
 h1 {
   font-size: 28px;
   margin-bottom: 16px;
@@ -24,7 +24,7 @@ h1 {
 }
 
 h2 {
-  font-size: 20px;
+  font-size: 22px;
   margin: 24px 0 12px;
   color: #dc2626;
 }
@@ -32,29 +32,26 @@ h2 {
 h3 {
   font-size: 16px;
   margin-bottom: 8px;
-  color: #dc2626;
+  color: #374151;
 }
 
-/* ===============================
-   LAYOUT CONTAINERS
-================================ */
+p {
+  font-size: 14px;
+  color: #374151;
+}
+
+/* =====================================================
+   LAYOUT
+===================================================== */
 .container {
-  max-width: 1100px;
+  max-width: 1200px;
   margin: auto;
   padding: 24px;
 }
 
-.card {
-  background: #ffffff;
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 16px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-}
-
-/* ===============================
-   NAVBAR (optional)
-================================ */
+/* =====================================================
+   NAVBAR / HEADER
+===================================================== */
 .navbar {
   background: #b91c1c;
   color: white;
@@ -63,9 +60,77 @@ h3 {
   font-weight: 600;
 }
 
-/* ===============================
-   FORMS & INPUTS
-================================ */
+/* =====================================================
+   CARDS (Store + Admin)
+===================================================== */
+.card {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+/* =====================================================
+   STORE PRODUCT GRID
+===================================================== */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.product-card {
+  background: white;
+  border-radius: 8px;
+  padding: 14px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.product-card h3 {
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+
+.product-card .price {
+  font-weight: 700;
+  color: #dc2626;
+  margin-bottom: 10px;
+}
+
+/* =====================================================
+   BUTTONS
+===================================================== */
+button {
+  background-color: #dc2626;
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+button:hover {
+  background-color: #b91c1c;
+}
+
+button.secondary {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+button.secondary:hover {
+  background: #e5e7eb;
+}
+
+/* =====================================================
+   FORMS
+===================================================== */
 input,
 select,
 textarea {
@@ -86,37 +151,10 @@ textarea:focus {
   box-shadow: 0 0 0 1px #dc2626;
 }
 
-/* ===============================
-   BUTTONS
-================================ */
-button {
-  background-color: #dc2626;
-  color: white;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
-}
-
-button:hover {
-  background-color: #b91c1c;
-}
-
-button.secondary {
-  background: #f3f4f6;
-  color: #111827;
-}
-
-button.secondary:hover {
-  background: #e5e7eb;
-}
-
-/* ===============================
-   TABLE / LIST STYLE (ADMIN)
-================================ */
-.list-item {
+/* =====================================================
+   ADMIN LIST ITEMS (Products / Orders)
+===================================================== */
+.admin-item {
   background: white;
   border: 1px solid #e5e7eb;
   border-radius: 6px;
@@ -127,13 +165,20 @@ button.secondary:hover {
   align-items: center;
 }
 
-.list-item strong {
-  color: #111827;
+/* =====================================================
+   ORDER BOX (ADMIN)
+===================================================== */
+.order-box {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 14px;
+  margin-bottom: 14px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
 
-/* ===============================
+/* =====================================================
    ORDER STATUS BADGES
-================================ */
+===================================================== */
 .badge {
   padding: 4px 10px;
   border-radius: 20px;
@@ -156,22 +201,34 @@ button.secondary:hover {
   color: #166534;
 }
 
-/* ===============================
-   ERROR / INFO TEXT
-================================ */
-.error {
-  color: #b91c1c;
-  margin-top: 8px;
+/* =====================================================
+   CART
+===================================================== */
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px;
+  background: white;
+  border-radius: 6px;
+  margin-bottom: 8px;
 }
 
+/* =====================================================
+   UTILITIES
+===================================================== */
 .muted {
   color: #6b7280;
   font-size: 13px;
 }
 
-/* ===============================
+.error {
+  color: #b91c1c;
+  margin-top: 8px;
+}
+
+/* =====================================================
    FOOTER
-================================ */
+===================================================== */
 footer {
   text-align: center;
   margin-top: 40px;
