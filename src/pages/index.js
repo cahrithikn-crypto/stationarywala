@@ -2,48 +2,69 @@ import { useEffect, useState } from "react";
 
 export default function Home() {
   const [products, setProducts] = useState([]);
+  const [cart, setCart] = useState([]);
 
+  // Load products
   useEffect(() => {
     fetch("/api/products")
-      .then((res) => res.json())
-      .then(setProducts);
+      .then(res => res.json())
+      .then(data => setProducts(data));
+
+    const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
+    setCart(savedCart);
   }, []);
 
+  // Add to cart
+  function addToCart(product) {
+    const updatedCart = [...cart, product];
+    setCart(updatedCart);
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+    alert(`${product.name} added to cart`);
+  }
+
   return (
-    <>
-      {/* HEADER */}
-      <header className="header">
-        <h1>Stationarywala</h1>
-        <button className="cart-btn">🛒 Cart</button>
-      </header>
+    <div style={{ padding: 30 }}>
+      <h1>Stationarywala</h1>
 
-      {/* HERO */}
-      <section className="hero">
-        <h2>All Your Stationery Needs, One Place ✏️📚</h2>
-        <p>Affordable • Quality • Fast Delivery</p>
-        <button className="hero-btn">Shop Now</button>
-      </section>
+      <p><strong>Cart:</strong> {cart.length} items</p>
 
-      {/* PRODUCTS */}
-      <main className="container">
-        <h2 className="section-title">Popular Products</h2>
+      <div style={{ display: "flex", gap: 20 }}>
+        {products.map(p => (
+          <div
+            key={p._id}
+            style={{
+              border: "1px solid #ddd",
+              padding: 15,
+              width: 200,
+              borderRadius: 8,
+              background: "#fff"
+            }}
+          >
+            <img
+              src={p.image || "/products/default.png"}
+              alt={p.name}
+              style={{ width: "100%", height: 120, objectFit: "contain" }}
+            />
 
-        <div className="grid">
-          {products.map((p) => (
-            <div className="card" key={p._id}>
-              <img src={p.image} alt={p.name} />
-              <h3>{p.name}</h3>
-              <p className="price">₹{p.price}</p>
-              <button>Add to Cart</button>
-            </div>
-          ))}
-        </div>
-      </main>
+            <h3>{p.name}</h3>
+            <p>₹{p.price}</p>
 
-      {/* FOOTER */}
-      <footer className="footer">
-        © {new Date().getFullYear()} Stationarywala. All rights reserved.
-      </footer>
-    </>
+            <button
+              style={{
+                background: "#e4002b",
+                color: "#fff",
+                border: "none",
+                padding: "8px 12px",
+                cursor: "pointer",
+                borderRadius: 4
+              }}
+              onClick={() => addToCart(p)}
+            >
+              Add to Cart
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
