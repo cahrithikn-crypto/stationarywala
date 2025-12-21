@@ -5,13 +5,14 @@ const OrderSchema = new mongoose.Schema(
     items: Array,
     total: Number,
     paymentId: String,
+
     status: {
       type: String,
-      default: "paid"
+      enum: ["Paid", "Shipped", "Delivered"],
+      default: "Paid"
     }
   },
   { timestamps: true }
 );
 
-export default mongoose.models.Order ||
-  mongoose.model("Order", OrderSchema);
+export default mongoose.models.Order || mongoose.model("Order", OrderSchema);
