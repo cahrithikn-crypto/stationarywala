@@ -1,0 +1,208 @@
+/* ===============================
+   RESET & BASE
+================================ */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+  background-color: #f6f8fb;
+  color: #1f2937;
+  line-height: 1.6;
+}
+
+/* ===============================
+   LINKS & BUTTONS
+================================ */
+a {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+button {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+button:hover {
+  background: #1e4ed8;
+}
+
+button.danger {
+  background: #dc2626;
+}
+
+button.danger:hover {
+  background: #b91c1c;
+}
+
+/* ===============================
+   INPUTS & FORMS
+================================ */
+input, select, textarea {
+  width: 100%;
+  padding: 10px 12px;
+  margin: 6px 0 12px 0;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37,99,235,0.15);
+}
+
+form {
+  max-width: 500px;
+}
+
+/* ===============================
+   HEADINGS
+================================ */
+h1 {
+  font-size: 28px;
+  margin-bottom: 16px;
+}
+
+h2 {
+  font-size: 22px;
+  margin: 24px 0 12px;
+}
+
+h3 {
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+/* ===============================
+   LAYOUT HELPERS
+================================ */
+.container {
+  max-width: 1100px;
+  margin: auto;
+  padding: 24px;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 18px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+/* ===============================
+   PRODUCT GRID (HOME PAGE)
+================================ */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.product-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 18px rgba(0,0,0,0.12);
+}
+
+.product-card h3 {
+  margin-bottom: 6px;
+}
+
+.product-price {
+  font-weight: bold;
+  color: #16a34a;
+  margin-bottom: 8px;
+}
+
+/* ===============================
+   ADMIN PAGE
+================================ */
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.admin-section {
+  background: #ffffff;
+  padding: 18px;
+  border-radius: 10px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+/* ===============================
+   ORDER STATUS BADGES
+================================ */
+.status {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.status.paid {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.status.shipped {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status.delivered {
+  background: #dcfce7;
+  color: #166534;
+}
+
+/* ===============================
+   TABLE-LIKE LISTS
+================================ */
+.list-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.list-row:last-child {
+  border-bottom: none;
+}
+
+/* ===============================
+   FOOTER
+================================ */
+footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 14px;
+  color: #6b7280;
+}
