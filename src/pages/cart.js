@@ -1,65 +1,64 @@
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/router";
 
 export default function Cart() {
   const [cart, setCart] = useState([]);
+  const router = useRouter();
 
-  // Load cart
+  // Load cart from localStorage
   useEffect(() => {
-    const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
-    setCart(savedCart);
+    const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
+    setCart(storedCart);
   }, []);
 
-  // Update localStorage
-  function updateCart(updatedCart) {
-    setCart(updatedCart);
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
+  // Update localStorage whenever cart changes
+  function updateCart(newCart) {
+    setCart(newCart);
+    localStorage.setItem("cart", JSON.stringify(newCart));
   }
 
   // Increase quantity
-  function increase(index) {
-    const updated = [...cart];
-    updated[index].qty = (updated[index].qty || 1) + 1;
+  function increaseQty(id) {
+    const updated = cart.map((item) =>
+      item._id === id ? { ...item, qty: item.qty + 1 } : item
+    );
     updateCart(updated);
   }
 
   // Decrease quantity
-  function decrease(index) {
-    const updated = [...cart];
-    if ((updated[index].qty || 1) > 1) {
-      updated[index].qty -= 1;
-      updateCart(updated);
-    }
+  function decreaseQty(id) {
+    const updated = cart
+      .map((item) =>
+        item._id === id ? { ...item, qty: item.qty - 1 } : item
+      )
+      .filter((item) => item.qty > 0);
+
+    updateCart(updated);
   }
 
   // Remove item
-  function removeItem(index) {
-    const updated = cart.filter((_, i) => i !== index);
+  function removeItem(id) {
+    const updated = cart.filter((item) => item._id !== id);
     updateCart(updated);
   }
 
   // Calculate total
   const total = cart.reduce(
-    (sum, item) => sum + item.price * (item.qty || 1),
+    (sum, item) => sum + item.price * item.qty,
     0
   );
 
   return (
     <div style={{ padding: 30 }}>
-      <h1>🛒 Your Cart</h1>
+      <h1>Your Cart</h1>
 
       {cart.length === 0 ? (
-        <>
-          <p>Your cart is empty</p>
-          <Link href="/" className="btn">
-            ← Continue Shopping
-          </Link>
-        </>
+        <p>Your cart is empty.</p>
       ) : (
         <>
-          {cart.map((item, index) => (
+          {cart.map((item) => (
             <div
-              key={index}
+              key={item._id}
               style={{
                 border: "1px solid #ddd",
                 padding: 15,
@@ -71,24 +70,16 @@ export default function Cart() {
             >
               <div>
                 <h3>{item.name}</h3>
-                <p>₹{item.price}</p>
-
-                <div>
-                  <button onClick={() => decrease(index)}>-</button>
-                  <span style={{ margin: "0 10px" }}>
-                    {item.qty || 1}
-                  </span>
-                  <button onClick={() => increase(index)}>+</button>
-                </div>
+                <p>Price: ₹{item.price}</p>
+                <p>Qty: {item.qty}</p>
               </div>
 
               <div>
-                <p>
-                  Subtotal: ₹{item.price * (item.qty || 1)}
-                </p>
+                <button onClick={() => decreaseQty(item._id)}>-</button>
+                <button onClick={() => increaseQty(item._id)}>+</button>
                 <button
-                  style={{ color: "red" }}
-                  onClick={() => removeItem(index)}
+                  onClick={() => removeItem(item._id)}
+                  style={{ marginLeft: 10, color: "red" }}
                 >
                   Remove
                 </button>
@@ -98,14 +89,22 @@ export default function Cart() {
 
           <h2>Total: ₹{total}</h2>
 
-          <div style={{ marginTop: 20 }}>
-            <button disabled style={{ marginRight: 10 }}>
-              Place Order (Coming Soon)
+          {/* Proceed to Checkout */}
+          <div style={{ textAlign: "right", marginTop: 20 }}>
+            <button
+              onClick={() => router.push("/checkout")}
+              style={{
+                padding: "12px 24px",
+                background: "#e53935",
+                color: "#fff",
+                border: "none",
+                fontSize: 16,
+                cursor: "pointer",
+                borderRadius: 4,
+              }}
+            >
+              Proceed to Checkout
             </button>
-
-            <Link href="/" className="btn">
-              ← Continue Shopping
-            </Link>
           </div>
         </>
       )}
