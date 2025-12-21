@@ -165,7 +165,41 @@ export default function Admin() {
         </div>
       ))}
 
-      {/* ORDERS */}
-      <h2 style={{ marginTop: 40 }}>Orders</h2>
+    {/* ORDERS */}
+<h2 style={{ marginTop: 40 }}>Orders</h2>
 
-      {orders.length === 0
+{orders.length === 0 && <p>No orders yet</p>}
+
+{orders.map((o) => (
+  <div
+    key={o._id}
+    style={{
+      border: "1px solid #ccc",
+      padding: 10,
+      marginBottom: 10,
+    }}
+  >
+    <div>
+      <b>Date:</b> {new Date(o.createdAt).toLocaleString()}
+    </div>
+    <div>
+      <b>Total:</b> ₹{o.total}
+    </div>
+    <div>
+      <b>Payment ID:</b> {o.paymentId || "N/A"}
+    </div>
+
+    <div>
+      <b>Items:</b>
+      <ul>
+        {o.items?.map((item, i) => (
+          <li key={i}>
+            {item.name} × {item.qty}
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+))}
+
+
