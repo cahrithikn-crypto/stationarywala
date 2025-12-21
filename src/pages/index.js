@@ -7,9 +7,12 @@ export default function Home() {
   // Load products
   useEffect(() => {
     fetch("/api/products")
-      .then(res => res.json())
-      .then(data => setProducts(data));
+      .then((res) => res.json())
+      .then((data) => setProducts(data));
+  }, []);
 
+  // Load cart from localStorage
+  useEffect(() => {
     const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
     setCart(savedCart);
   }, []);
@@ -24,41 +27,58 @@ export default function Home() {
 
   return (
     <div style={{ padding: 30 }}>
-      <h1>Stationarywala</h1>
+      {/* HEADER */}
+      <h1 style={{ fontSize: 32, marginBottom: 10 }}>Stationarywala</h1>
+      <p style={{ marginBottom: 30 }}>
+        🛒 Cart Items: <strong>{cart.length}</strong>
+      </p>
 
-      <p><strong>Cart:</strong> {cart.length} items</p>
-
-      <div style={{ display: "flex", gap: 20 }}>
-        {products.map(p => (
+      {/* PRODUCTS GRID */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+          gap: 20,
+        }}
+      >
+        {products.map((product) => (
           <div
-            key={p._id}
+            key={product._id}
             style={{
               border: "1px solid #ddd",
-              padding: 15,
-              width: 200,
               borderRadius: 8,
-              background: "#fff"
+              padding: 16,
+              background: "#fff",
             }}
           >
+            {/* IMAGE (fallback safe) */}
             <img
-              src={p.image || "/products/default.png"}
-              alt={p.name}
-              style={{ width: "100%", height: 120, objectFit: "contain" }}
+              src={product.image || "/placeholder.png"}
+              alt={product.name}
+              style={{
+                width: "100%",
+                height: 150,
+                objectFit: "contain",
+                marginBottom: 10,
+              }}
             />
 
-            <h3>{p.name}</h3>
-            <p>₹{p.price}</p>
+            <h3 style={{ marginBottom: 6 }}>{product.name}</h3>
+            <p style={{ fontWeight: "bold", marginBottom: 10 }}>
+              ₹{product.price}
+            </p>
 
             <button
+              onClick={() => addToCart(product)}
               style={{
-                background: "#e4002b",
+                background: "#e53935",
                 color: "#fff",
                 border: "none",
-                padding: "8px 12px",
+                padding: "10px 14px",
+                borderRadius: 6,
                 cursor: "pointer",
-                borderRadius: 4
+                width: "100%",
               }}
-              onClick={() => addToCart(p)}
             >
               Add to Cart
             </button>
