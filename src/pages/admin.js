@@ -154,7 +154,7 @@ export default function Admin() {
         </div>
       ))}
 
-     <h2 style={{ marginTop: 30 }}>Orders</h2>
+  <h2 style={{ marginTop: 30 }}>Orders</h2>
 
 {orders.length === 0 && <p>No orders yet</p>}
 
@@ -163,17 +163,16 @@ export default function Admin() {
     key={o._id}
     style={{
       border: "1px solid #ccc",
-      padding: 10,
-      marginBottom: 10,
+      padding: 12,
+      marginBottom: 12,
     }}
   >
     <div>Date: {new Date(o.createdAt).toLocaleString()}</div>
     <div>Total: ₹{o.total}</div>
     <div>Payment ID: {o.paymentId || "N/A"}</div>
 
-    {/* STATUS */}
     <div style={{ marginTop: 8 }}>
-      <b>Status:</b>{" "}
+      <strong>Status:</strong>{" "}
       <select
         value={o.status || "Paid"}
         onChange={async (e) => {
@@ -194,11 +193,10 @@ export default function Admin() {
       </select>
     </div>
 
-    {/* TRACKING */}
     <div style={{ marginTop: 8 }}>
-      <b>Tracking Number:</b>{" "}
+      <strong>Tracking Number:</strong>{" "}
       <input
-        value={o.trackingNumber || ""}
+        defaultValue={o.trackingNumber || ""}
         placeholder="Enter tracking number"
         onBlur={async (e) => {
           await fetch("/api/orders", {
@@ -231,5 +229,6 @@ export default function Admin() {
     </div>
   );
 }
+
 
 
