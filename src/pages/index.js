@@ -1,22 +1,10 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
-const CATEGORIES = [
-  "All",
-  "Writing Instruments",
-  "Paper & Notebooks",
-  "Files & Folders",
-  "Geometry & Measuring",
-  "School Essentials",
-  "Art & Craft",
-  "Office Supplies",
-  "Printing & Accessories",
-  "Gift & Fancy Stationery",
-];
-
 export default function Home() {
   const [products, setProducts] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [search, setSearch] = useState("");
+  const [cartCount, setCartCount] = useState(0);
 
   // --------------------
   // Fetch products
@@ -32,6 +20,7 @@ export default function Home() {
   // --------------------
   function addToCart(product) {
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
+
     const existing = cart.find((item) => item._id === product._id);
 
     if (existing) {
@@ -41,35 +30,41 @@ export default function Home() {
     }
 
     localStorage.setItem("cart", JSON.stringify(cart));
+    setCartCount(cart.reduce((sum, item) => sum + item.qty, 0));
     alert("Added to cart");
   }
 
+  // --------------------
+  // Load on page open
+  // --------------------
   useEffect(() => {
     fetchProducts();
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    setCartCount(cart.reduce((sum, item) => sum + item.qty, 0));
   }, []);
 
   // --------------------
-  // Filter products
+  // Filter by search
   // --------------------
-  const filteredProducts =
-    selectedCategory === "All"
-      ? products
-      : products.filter((p) => p.category === selectedCategory);
+  const filteredProducts = products.filter((p) =>
+    p.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
-    <div>
-      {/* ================= RED AMAZON STYLE HEADER ================= */}
+    <div style={{ padding: 20 }}>
+      {/* ================= HEADER ================= */}
       <div
         style={{
           background: "#e53935",
           color: "#fff",
-          padding: "14px 20px",
+          padding: 15,
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          borderRadius: 6,
         }}
       >
-        <h2 style={{ margin: 0 }}>📘 Stationarywala</h2>
+        <h1>📘 Stationarywala</h1>
 
         <Link href="/cart">
           <button
@@ -81,149 +76,133 @@ export default function Home() {
               borderRadius: 4,
               cursor: "pointer",
               fontWeight: "bold",
+              position: "relative",
             }}
           >
-            🛒 Go to Cart
+            🛒 Cart
+            {cartCount > 0 && (
+              <span
+                style={{
+                  position: "absolute",
+                  top: -6,
+                  right: -6,
+                  background: "#ff1744",
+                  color: "#fff",
+                  borderRadius: "50%",
+                  padding: "2px 6px",
+                  fontSize: 12,
+                }}
+              >
+                {cartCount}
+              </span>
+            )}
           </button>
         </Link>
       </div>
 
-      {/* ================= CATEGORY BAR ================= */}
-      <div
-        style={{
-          display: "flex",
-          overflowX: "auto",
-          gap: 10,
-          padding: "10px 15px",
-          background: "#fff",
-          borderBottom: "1px solid #ddd",
-        }}
-      >
-        {CATEGORIES.map((cat) => (
-          <button
-            key={cat}
-            onClick={() => setSelectedCategory(cat)}
-            style={{
-              whiteSpace: "nowrap",
-              padding: "6px 12px",
-              borderRadius: 20,
-              border:
-                selectedCategory === cat
-                  ? "2px solid #e53935"
-                  : "1px solid #ccc",
-              background:
-                selectedCategory === cat ? "#fdecea" : "#fff",
-              cursor: "pointer",
-              fontWeight: "bold",
-            }}
-          >
-            {cat}
-          </button>
-        ))}
+      {/* ================= SEARCH ================= */}
+      <div style={{ marginTop: 20 }}>
+        <input
+          placeholder="Search stationery items..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          style={{
+            width: "100%",
+            padding: 10,
+            fontSize: 16,
+            borderRadius: 4,
+            border: "1px solid #ccc",
+          }}
+        />
       </div>
 
       {/* ================= BANNER ================= */}
       <div
         style={{
-          background: "#fdecea",
+          background: "#fbe9e7",
           padding: 20,
-          margin: 20,
           borderRadius: 6,
+          marginTop: 20,
         }}
       >
-        <h2>School • Office • Art • Exam Essentials ✏️</h2>
-        <p>Everything you need — trusted stationery at best prices</p>
+        <h2>Everything you need for School & Office ✏️</h2>
+        <p>Notebooks, pens, files & more — at best prices</p>
       </div>
 
       {/* ================= PRODUCTS ================= */}
-      <div style={{ padding: 20 }}>
-        <h2 style={{ marginBottom: 15 }}>
-          {selectedCategory === "All"
-            ? "Popular Products"
-            : selectedCategory}
-        </h2>
+      <h2 style={{ marginTop: 30 }}>Popular Products</h2>
 
-        {filteredProducts.length === 0 && (
-          <p>No products available in this category</p>
-        )}
+      {filteredProducts.length === 0 && <p>No products available</p>}
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
-            gap: 20,
-          }}
-        >
-          {filteredProducts.map((p) => (
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+          gap: 20,
+          marginTop: 20,
+        }}
+      >
+        {filteredProducts.map((p) => (
+          <div
+            key={p._id}
+            style={{
+              border: "1px solid #ddd",
+              padding: 15,
+              borderRadius: 6,
+              background: "#fff",
+            }}
+          >
             <div
-              key={p._id}
               style={{
-                border: "1px solid #ddd",
-                padding: 15,
-                borderRadius: 6,
-                background: "#fff",
+                height: 140,
+                background: "#f5f5f5",
+                marginBottom: 10,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#777",
+                fontSize: 12,
               }}
             >
-              {/* IMAGE PLACEHOLDER */}
-              <div
-                style={{
-                  height: 140,
-                  background: "#f5f5f5",
-                  marginBottom: 10,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 12,
-                  color: "#777",
-                }}
-              >
-                Product Image
-              </div>
-
-              <h3 style={{ margin: "6px 0" }}>{p.name}</h3>
-              <p style={{ fontWeight: "bold", margin: "4px 0" }}>
-                ₹{p.price}
-              </p>
-
-              <p style={{ fontSize: 12, color: "#555" }}>
-                Category: {p.category || "General"}
-              </p>
-
-              <p style={{ fontSize: 12, color: "#555" }}>
-                Stock: {p.stock}
-              </p>
-
-              <button
-                onClick={() => addToCart(p)}
-                style={{
-                  marginTop: 10,
-                  width: "100%",
-                  padding: "8px 0",
-                  background: "#1976d2",
-                  color: "#fff",
-                  border: "none",
-                  cursor: "pointer",
-                  borderRadius: 4,
-                }}
-              >
-                Add to Cart
-              </button>
+              Image coming soon
             </div>
-          ))}
-        </div>
+
+            <h3>{p.name}</h3>
+            <p style={{ fontWeight: "bold" }}>₹{p.price}</p>
+            <p style={{ fontSize: 12, color: "#555" }}>
+              Stock: {p.stock}
+            </p>
+
+            <button
+              onClick={() => addToCart(p)}
+              style={{
+                marginTop: 10,
+                width: "100%",
+                padding: "8px 0",
+                background: "#1976d2",
+                color: "#fff",
+                border: "none",
+                borderRadius: 4,
+                cursor: "pointer",
+              }}
+            >
+              Add to Cart
+            </button>
+          </div>
+        ))}
       </div>
 
       {/* ================= FOOTER ================= */}
       <div
         style={{
           marginTop: 50,
-          padding: 20,
-          textAlign: "center",
+          paddingTop: 20,
           borderTop: "1px solid #ddd",
+          textAlign: "center",
           color: "#666",
         }}
       >
-        © {new Date().getFullYear()} Stationarywala — All rights reserved
+        © {new Date().getFullYear()} Stationarywala. All rights reserved.
       </div>
     </div>
   );
