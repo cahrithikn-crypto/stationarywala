@@ -1,5 +1,17 @@
 import { useEffect, useState } from "react";
 
+const CATEGORIES = [
+  "Writing Instruments",
+  "Paper & Notebooks",
+  "Files & Folders",
+  "Geometry & Measuring",
+  "School Essentials",
+  "Art & Craft",
+  "Office Supplies",
+  "Printing & Accessories",
+  "Gift & Fancy Stationery",
+];
+
 export default function Admin() {
   const [authorized, setAuthorized] = useState(false);
   const [password, setPassword] = useState("");
@@ -11,9 +23,8 @@ export default function Admin() {
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("");
-  const [image, setImage] = useState("");
+  const [category, setCategory] = useState("");
 
-  /* ================= LOGIN ================= */
   async function login(e) {
     e.preventDefault();
 
@@ -30,7 +41,7 @@ export default function Admin() {
         "admin_auth",
         JSON.stringify({
           loggedIn: true,
-          expires: Date.now() + 30 * 60 * 1000, // 30 mins
+          expires: Date.now() + 30 * 60 * 1000,
         })
       );
       setAuthorized(true);
@@ -44,7 +55,6 @@ export default function Admin() {
     setAuthorized(false);
   }
 
-  /* ================= DATA ================= */
   async function fetchProducts() {
     const res = await fetch("/api/products");
     setProducts(await res.json());
@@ -65,14 +75,14 @@ export default function Admin() {
         name,
         price: Number(price),
         stock: Number(stock),
-        image: image ? `/products/${image}` : "/products/default.png",
+        category,
       }),
     });
 
     setName("");
     setPrice("");
     setStock("");
-    setImage("");
+    setCategory("");
     fetchProducts();
   }
 
@@ -81,16 +91,6 @@ export default function Admin() {
     fetchProducts();
   }
 
-  async function updateOrder(data) {
-    await fetch("/api/orders", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    fetchOrders();
-  }
-
-  /* ================= SESSION CHECK ================= */
   useEffect(() => {
     const session = JSON.parse(localStorage.getItem("admin_auth"));
     if (session && session.loggedIn && session.expires > Date.now()) {
@@ -102,10 +102,9 @@ export default function Admin() {
     }
   }, []);
 
-  /* ================= LOGIN UI ================= */
   if (!authorized) {
     return (
-      <div style={{ padding: 40, maxWidth: 400, margin: "auto" }}>
+      <div style={{ padding: 40 }}>
         <h1>Admin Login</h1>
         <form onSubmit={login}>
           <input
@@ -114,32 +113,42 @@ export default function Admin() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            style={{ width: "100%", padding: 10, marginBottom: 10 }}
           />
-          <button style={{ width: "100%", padding: 10 }}>Login</button>
+          <button type="submit">Login</button>
           {error && <p style={{ color: "red" }}>{error}</p>}
         </form>
       </div>
     );
   }
 
-  /* ================= ADMIN PANEL ================= */
   return (
     <div style={{ padding: 30 }}>
       <h1>Admin – Stationarywala</h1>
-      <button onClick={logout} style={{ marginBottom: 20 }}>
-        Logout
-      </button>
+      <button onClick={logout}>Logout</button>
 
-      {/* ADD PRODUCT */}
       <h2>Add Product</h2>
-      <form onSubmit={addProduct} style={{ maxWidth: 400 }}>
+      <form onSubmit={addProduct}>
         <input
           placeholder="Product name"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
         />
+
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          required
+          style={{ color: "#000" }} // ✅ BLACK TEXT
+        >
+          <option value="">Select Category</option>
+          {CATEGORIES.map((c) => (
+            <option key={c} value={c} style={{ color: "#000" }}>
+              {c}
+            </option>
+          ))}
+        </select>
+
         <input
           type="number"
           placeholder="Price"
@@ -147,6 +156,7 @@ export default function Admin() {
           onChange={(e) => setPrice(e.target.value)}
           required
         />
+
         <input
           type="number"
           placeholder="Stock"
@@ -154,85 +164,25 @@ export default function Admin() {
           onChange={(e) => setStock(e.target.value)}
           required
         />
-        <input
-          placeholder="Image filename (pen.jpg)"
-          value={image}
-          onChange={(e) => setImage(e.target.value)}
-        />
-        <button type="submit">Add Product</button>
+
+        <button type="submit">Add</button>
       </form>
 
-      {/* PRODUCTS */}
-      <h2 style={{ marginTop: 30 }}>Products</h2>
+      <h2>Products</h2>
       {products.map((p) => (
-        <div
-          key={p._id}
-          style={{
-            display: "flex",
-            gap: 15,
-            border: "1px solid #ddd",
-            padding: 10,
-            marginBottom: 10,
-          }}
-        >
-          <img
-            src={p.image}
-            alt={p.name}
-            style={{ width: 80, height: 80, objectFit: "cover" }}
-          />
-          <div style={{ flex: 1 }}>
-            <strong>{p.name}</strong>
-            <div>₹{p.price}</div>
-            <div>Stock: {p.stock}</div>
-          </div>
+        <div key={p._id}>
+          {p.name} – ₹{p.price} – Stock {p.stock} –{" "}
+          <b style={{ color: "#000" }}>{p.category}</b>
           <button onClick={() => deleteProduct(p._id)}>Delete</button>
         </div>
       ))}
 
-      {/* ORDERS */}
-      <h2 style={{ marginTop: 40 }}>Orders</h2>
+      <h2 style={{ marginTop: 30 }}>Orders</h2>
       {orders.length === 0 && <p>No orders yet</p>}
-
       {orders.map((o) => (
-        <div
-          key={o._id}
-          style={{
-            border: "1px solid #ccc",
-            padding: 15,
-            marginBottom: 15,
-          }}
-        >
-          <div>Date: {new Date(o.createdAt).toLocaleString()}</div>
+        <div key={o._id} style={{ border: "1px solid #ccc", padding: 10 }}>
           <div>Total: ₹{o.total}</div>
-          <div>Payment ID: {o.paymentId || "N/A"}</div>
-
-          <div style={{ marginTop: 10 }}>
-            <strong>Status:</strong>{" "}
-            <select
-              value={o.status || "Paid"}
-              onChange={(e) =>
-                updateOrder({ id: o._id, status: e.target.value })
-              }
-            >
-              <option value="Paid">Paid</option>
-              <option value="Shipped">Shipped</option>
-              <option value="Delivered">Delivered</option>
-            </select>
-          </div>
-
-          <div style={{ marginTop: 10 }}>
-            <strong>Tracking Number:</strong>{" "}
-            <input
-              defaultValue={o.trackingNumber || ""}
-              placeholder="Enter tracking number"
-              onBlur={(e) =>
-                updateOrder({
-                  id: o._id,
-                  trackingNumber: e.target.value,
-                })
-              }
-            />
-          </div>
+          <div>Status: {o.status || "Paid"}</div>
         </div>
       ))}
     </div>
