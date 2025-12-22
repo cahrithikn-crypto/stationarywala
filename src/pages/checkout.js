@@ -3,174 +3,151 @@ import { useRouter } from "next/router";
 
 export default function Checkout() {
   const router = useRouter();
-
   const [cart, setCart] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [method, setMethod] = useState("COD");
 
-  // Customer details
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
-  const [city, setCity] = useState("");
-  const [pincode, setPincode] = useState("");
 
   useEffect(() => {
-    const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
-    if (storedCart.length === 0) {
-      router.push("/");
-    } else {
-      setCart(storedCart);
-    }
+    const stored = JSON.parse(localStorage.getItem("cart")) || [];
+    setCart(stored);
   }, []);
 
-  const totalAmount = cart.reduce(
+  const total = cart.reduce(
     (sum, item) => sum + item.price * item.qty,
     0
   );
 
-  async function placeOrderCOD(e) {
-    e.preventDefault();
-
-    if (!name || !phone || !address || !city || !pincode) {
+  async function placeOrder() {
+    if (!name || !phone || !address) {
       alert("Please fill all details");
       return;
     }
 
-    setLoading(true);
-
-    const orderData = {
+    const order = {
+      customer: { name, phone, address },
       items: cart,
-      total: totalAmount,
-      paymentMethod: "COD",
-      status: "Pending",
-      customer: {
-        name,
-        phone,
-        address,
-        city,
-        pincode,
-      },
+      total,
+      paymentMethod: method,
+      status: method === "COD" ? "Pending" : "Paid",
     };
 
-    try {
-      const res = await fetch("/api/orders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(orderData),
-      });
+    await fetch("/api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(order),
+    });
 
-      if (!res.ok) {
-        throw new Error("Order failed");
-      }
-
-      localStorage.removeItem("cart");
-      alert("Order placed successfully (Cash on Delivery)");
-      router.push("/");
-    } catch (err) {
-      alert("Something went wrong. Try again.");
-    } finally {
-      setLoading(false);
-    }
+    localStorage.removeItem("cart");
+    alert("Order placed successfully!");
+    router.push("/");
   }
 
   return (
-    <div style={{ maxWidth: 800, margin: "40px auto", padding: 20 }}>
+    <div style={{ padding: 30, maxWidth: 800, margin: "auto" }}>
       <h1>Checkout</h1>
 
-      {/* ORDER SUMMARY */}
-      <h2>Order Summary</h2>
-      {cart.map((item) => (
+      {/* CUSTOMER DETAILS */}
+      <h3>Delivery Details</h3>
+      <input
+        placeholder="Full Name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        style={input}
+      />
+      <input
+        placeholder="Phone Number"
+        value={phone}
+        onChange={(e) => setPhone(e.target.value)}
+        style={input}
+      />
+      <textarea
+        placeholder="Delivery Address"
+        value={address}
+        onChange={(e) => setAddress(e.target.value)}
+        style={{ ...input, height: 80 }}
+      />
+
+      {/* PAYMENT METHOD */}
+      <h3>Payment Method</h3>
+
+      <label style={radio}>
+        <input
+          type="radio"
+          checked={method === "COD"}
+          onChange={() => setMethod("COD")}
+        />
+        Cash on Delivery
+      </label>
+
+      <label style={radio}>
+        <input
+          type="radio"
+          checked={method === "UPI"}
+          onChange={() => setMethod("UPI")}
+        />
+        UPI (Google Pay / PhonePe / Paytm)
+      </label>
+
+      {/* UPI INFO */}
+      {method === "UPI" && (
         <div
-          key={item._id}
           style={{
-            display: "flex",
-            justifyContent: "space-between",
-            marginBottom: 8,
+            background: "#f5f5f5",
+            padding: 15,
+            borderRadius: 6,
+            marginTop: 10,
           }}
         >
-          <span>
-            {item.name} × {item.qty}
-          </span>
-          <span>₹{item.price * item.qty}</span>
+          <p>
+            Pay via UPI to:
+            <br />
+            <strong>stationarywala@upi</strong>
+          </p>
+          <p>After payment, click Place Order</p>
+        </div>
+      )}
+
+      {/* ORDER SUMMARY */}
+      <h3>Order Summary</h3>
+      {cart.map((item) => (
+        <div key={item._id}>
+          {item.name} × {item.qty} = ₹{item.price * item.qty}
         </div>
       ))}
 
-      <hr />
-      <h3>Total: ₹{totalAmount}</h3>
+      <h2>Total: ₹{total}</h2>
 
-      {/* CUSTOMER DETAILS */}
-      <h2 style={{ marginTop: 30 }}>Delivery Details</h2>
-
-      <form onSubmit={placeOrderCOD}>
-        <input
-          placeholder="Full Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-          style={inputStyle}
-        />
-
-        <input
-          placeholder="Phone Number"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          required
-          style={inputStyle}
-        />
-
-        <textarea
-          placeholder="Full Address"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-          required
-          style={{ ...inputStyle, height: 80 }}
-        />
-
-        <input
-          placeholder="City"
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-          required
-          style={inputStyle}
-        />
-
-        <input
-          placeholder="Pincode"
-          value={pincode}
-          onChange={(e) => setPincode(e.target.value)}
-          required
-          style={inputStyle}
-        />
-
-        {/* PAYMENT METHOD */}
-        <h2 style={{ marginTop: 30 }}>Payment Method</h2>
-        <div style={{ marginBottom: 20 }}>
-          <strong>Cash on Delivery (COD)</strong>
-          <p>Pay when your order is delivered</p>
-        </div>
-
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
-            padding: "12px 20px",
-            background: "#e53935",
-            color: "#fff",
-            border: "none",
-            cursor: "pointer",
-            fontSize: 16,
-          }}
-        >
-          {loading ? "Placing Order..." : "Place Order (COD)"}
-        </button>
-      </form>
+      <button
+        onClick={placeOrder}
+        style={{
+          marginTop: 20,
+          padding: "12px 20px",
+          background: "#e53935",
+          color: "#fff",
+          border: "none",
+          cursor: "pointer",
+          fontSize: 16,
+          borderRadius: 4,
+        }}
+      >
+        Place Order
+      </button>
     </div>
   );
 }
 
-const inputStyle = {
+const input = {
   width: "100%",
   padding: 10,
-  marginBottom: 12,
+  marginBottom: 10,
   border: "1px solid #ccc",
+  borderRadius: 4,
+};
+
+const radio = {
+  display: "block",
+  marginBottom: 8,
 };
