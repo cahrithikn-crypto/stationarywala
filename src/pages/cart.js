@@ -49,13 +49,14 @@ export default function Cart() {
   );
 
   return (
-    <div style={{ padding: 30 }}>
+    <div style={{ padding: 30, maxWidth: 900, margin: "auto" }}>
       <h1>Your Cart</h1>
 
       {cart.length === 0 ? (
         <p>Your cart is empty.</p>
       ) : (
         <>
+          {/* ================= CART ITEMS ================= */}
           {cart.map((item) => (
             <div
               key={item._id}
@@ -66,6 +67,7 @@ export default function Cart() {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
+                background: "#fff",
               }}
             >
               <div>
@@ -87,9 +89,27 @@ export default function Cart() {
             </div>
           ))}
 
-          <h2>Total: ₹{total}</h2>
+          {/* ================= PAYMENT OPTIONS (POINT 2) ================= */}
+          <div
+            style={{
+              marginTop: 25,
+              padding: 15,
+              background: "#fbe9e7",
+              border: "1px solid #f44336",
+              borderRadius: 6,
+            }}
+          >
+            <h3 style={{ marginBottom: 8 }}>Available Payment Options</h3>
+            <ul style={{ margin: 0, paddingLeft: 20 }}>
+              <li>💵 Cash on Delivery (COD)</li>
+              <li>📱 UPI – Google Pay, PhonePe, Paytm</li>
+            </ul>
+          </div>
 
-          {/* Proceed to Checkout */}
+          {/* ================= TOTAL ================= */}
+          <h2 style={{ marginTop: 25 }}>Total: ₹{total}</h2>
+
+          {/* ================= CHECKOUT ================= */}
           <div style={{ textAlign: "right", marginTop: 20 }}>
             <button
               onClick={() => router.push("/checkout")}
