@@ -1,8 +1,22 @@
-import Header from "../components/Header";
 import { useEffect, useState } from "react";
+import Link from "next/link";
+
+const CATEGORIES = [
+  "All",
+  "Writing Instruments",
+  "Paper & Notebooks",
+  "Files & Folders",
+  "Geometry & Measuring",
+  "School Essentials",
+  "Art & Craft",
+  "Office Supplies",
+  "Printing & Accessories",
+  "Gift & Fancy Stationery",
+];
 
 export default function Home() {
   const [products, setProducts] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("All");
 
   // --------------------
   // Fetch products
@@ -18,7 +32,6 @@ export default function Home() {
   // --------------------
   function addToCart(product) {
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
-
     const existing = cart.find((item) => item._id === product._id);
 
     if (existing) {
@@ -35,29 +48,104 @@ export default function Home() {
     fetchProducts();
   }, []);
 
+  // --------------------
+  // Filter products
+  // --------------------
+  const filteredProducts =
+    selectedCategory === "All"
+      ? products
+      : products.filter((p) => p.category === selectedCategory);
+
   return (
-    <>
-      {/* ✅ HEADER AT TOP */}
-      <Header />
+    <div>
+      {/* ================= RED AMAZON STYLE HEADER ================= */}
+      <div
+        style={{
+          background: "#e53935",
+          color: "#fff",
+          padding: "14px 20px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <h2 style={{ margin: 0 }}>📘 Stationarywala</h2>
 
+        <Link href="/cart">
+          <button
+            style={{
+              background: "#fff",
+              color: "#e53935",
+              border: "none",
+              padding: "8px 14px",
+              borderRadius: 4,
+              cursor: "pointer",
+              fontWeight: "bold",
+            }}
+          >
+            🛒 Go to Cart
+          </button>
+        </Link>
+      </div>
+
+      {/* ================= CATEGORY BAR ================= */}
+      <div
+        style={{
+          display: "flex",
+          overflowX: "auto",
+          gap: 10,
+          padding: "10px 15px",
+          background: "#fff",
+          borderBottom: "1px solid #ddd",
+        }}
+      >
+        {CATEGORIES.map((cat) => (
+          <button
+            key={cat}
+            onClick={() => setSelectedCategory(cat)}
+            style={{
+              whiteSpace: "nowrap",
+              padding: "6px 12px",
+              borderRadius: 20,
+              border:
+                selectedCategory === cat
+                  ? "2px solid #e53935"
+                  : "1px solid #ccc",
+              background:
+                selectedCategory === cat ? "#fdecea" : "#fff",
+              cursor: "pointer",
+              fontWeight: "bold",
+            }}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+
+      {/* ================= BANNER ================= */}
+      <div
+        style={{
+          background: "#fdecea",
+          padding: 20,
+          margin: 20,
+          borderRadius: 6,
+        }}
+      >
+        <h2>School • Office • Art • Exam Essentials ✏️</h2>
+        <p>Everything you need — trusted stationery at best prices</p>
+      </div>
+
+      {/* ================= PRODUCTS ================= */}
       <div style={{ padding: 20 }}>
-        {/* ================= BANNER ================= */}
-        <div
-          style={{
-            background: "#fbe9e7",
-            padding: 20,
-            borderRadius: 6,
-            marginBottom: 30,
-          }}
-        >
-          <h2>Everything you need for School & Office ✏️</h2>
-          <p>Notebooks, pens, files & more — at best prices</p>
-        </div>
+        <h2 style={{ marginBottom: 15 }}>
+          {selectedCategory === "All"
+            ? "Popular Products"
+            : selectedCategory}
+        </h2>
 
-        {/* ================= PRODUCTS ================= */}
-        <h2 style={{ marginBottom: 15 }}>Popular Products</h2>
-
-        {products.length === 0 && <p>No products available</p>}
+        {filteredProducts.length === 0 && (
+          <p>No products available in this category</p>
+        )}
 
         <div
           style={{
@@ -66,7 +154,7 @@ export default function Home() {
             gap: 20,
           }}
         >
-          {products.map((p) => (
+          {filteredProducts.map((p) => (
             <div
               key={p._id}
               style={{
@@ -76,6 +164,7 @@ export default function Home() {
                 background: "#fff",
               }}
             >
+              {/* IMAGE PLACEHOLDER */}
               <div
                 style={{
                   height: 140,
@@ -88,12 +177,21 @@ export default function Home() {
                   color: "#777",
                 }}
               >
-                Image coming soon
+                Product Image
               </div>
 
-              <h3>{p.name}</h3>
-              <p style={{ fontWeight: "bold" }}>₹{p.price}</p>
-              <p style={{ fontSize: 12 }}>Stock: {p.stock}</p>
+              <h3 style={{ margin: "6px 0" }}>{p.name}</h3>
+              <p style={{ fontWeight: "bold", margin: "4px 0" }}>
+                ₹{p.price}
+              </p>
+
+              <p style={{ fontSize: 12, color: "#555" }}>
+                Category: {p.category || "General"}
+              </p>
+
+              <p style={{ fontSize: 12, color: "#555" }}>
+                Stock: {p.stock}
+              </p>
 
               <button
                 onClick={() => addToCart(p)}
@@ -113,20 +211,20 @@ export default function Home() {
             </div>
           ))}
         </div>
-
-        {/* ================= FOOTER ================= */}
-        <div
-          style={{
-            marginTop: 50,
-            paddingTop: 20,
-            borderTop: "1px solid #ddd",
-            textAlign: "center",
-            color: "#666",
-          }}
-        >
-          © {new Date().getFullYear()} Stationarywala. All rights reserved.
-        </div>
       </div>
-    </>
+
+      {/* ================= FOOTER ================= */}
+      <div
+        style={{
+          marginTop: 50,
+          padding: 20,
+          textAlign: "center",
+          borderTop: "1px solid #ddd",
+          color: "#666",
+        }}
+      >
+        © {new Date().getFullYear()} Stationarywala — All rights reserved
+      </div>
+    </div>
   );
 }
