@@ -40,16 +40,41 @@ export default function Checkout() {
       status: paymentMethod === "COD" ? "Pending" : "Paid",
     };
 
-    await fetch("/api/orders", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(orderData),
-    });
-
-    localStorage.removeItem("cart");
-    alert("Order placed successfully!");
-    router.push("/");
+    async function placeOrder() {
+  if (!form.name || !form.phone || !form.address) {
+    alert("Please fill all details");
+    return;
   }
+
+  const orderData = {
+    customer: form,
+    items: cart,
+    total,
+    paymentMethod,
+    status: paymentMethod === "COD" ? "Pending" : "Paid",
+  };
+
+  // 👉 CAPTURE RESPONSE
+  const res = await fetch("/api/orders", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(orderData),
+  });
+
+  const data = await res.json(); // ✅ THIS IS POINT 2
+
+  if (!data.success) {
+    alert("Order failed. Try again.");
+    return;
+  }
+
+  // ✅ Clear cart
+  localStorage.removeItem("cart");
+
+  // ✅ Redirect with orderId
+  router.push(`/success?orderId=${data.orderId}`);
+}
+
 
   return (
     <>
@@ -204,3 +229,4 @@ const radioStyle = {
   marginBottom: 10,
   cursor: "pointer",
 };
+
