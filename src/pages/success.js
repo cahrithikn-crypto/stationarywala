@@ -1,47 +1,27 @@
-import { useRouter } from "next/router";
-import Link from "next/link";
-import Header from "../components/Header";
+async function placeOrder() {
+  if (!form.name || !form.phone || !form.address) {
+    alert("Please fill all details");
+    return;
+  }
 
-export default function Success() {
-  const router = useRouter();
-  const { orderId } = router.query;
+  const orderData = {
+    customer: form,
+    items: cart,
+    total,
+    paymentMethod,
+    status: paymentMethod === "COD" ? "Pending" : "Paid",
+  };
 
-  if (!orderId) return null;
+  const res = await fetch("/api/orders", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(orderData),
+  });
 
-  return (
-    <>
-      <Header />
+  const data = await res.json();
 
-      <div style={{ padding: 40, textAlign: "center" }}>
-        <h1 style={{ color: "#2e7d32" }}>✅ Order Placed Successfully!</h1>
+  localStorage.removeItem("cart");
 
-        <p>
-          <b>Order ID:</b> {orderId}
-        </p>
-
-        <p>
-          You can track your order anytime using the link below.
-        </p>
-
-        <Link href={`/track/${orderId}`}>
-          <button
-            style={{
-              padding: "12px 20px",
-              background: "#d32f2f",
-              color: "#fff",
-              border: "none",
-              cursor: "pointer",
-              borderRadius: 4,
-            }}
-          >
-            Track Order
-          </button>
-        </Link>
-
-        <div style={{ marginTop: 30 }}>
-          <Link href="/">← Continue Shopping</Link>
-        </div>
-      </div>
-    </>
-  );
+  // 👉 REDIRECT WITH ORDER ID
+  router.push(`/success?orderId=${data.orderId}`);
 }
