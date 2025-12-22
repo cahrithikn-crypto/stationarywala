@@ -1,10 +1,24 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
+const CATEGORIES = [
+  "All",
+  "Writing Instruments",
+  "Paper & Notebooks",
+  "Files & Folders",
+  "Geometry & Measuring",
+  "School Essentials",
+  "Art & Craft",
+  "Office Supplies",
+  "Printing & Accessories",
+  "Gift & Fancy Stationery",
+];
+
 export default function Home() {
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState("");
   const [cartCount, setCartCount] = useState(0);
+  const [selectedCategory, setSelectedCategory] = useState("All");
 
   // --------------------
   // Fetch products
@@ -44,11 +58,19 @@ export default function Home() {
   }, []);
 
   // --------------------
-  // Filter by search
+  // Filters
   // --------------------
-  const filteredProducts = products.filter((p) =>
-    p.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredProducts = products.filter((p) => {
+    const matchesSearch = p.name
+      .toLowerCase()
+      .includes(search.toLowerCase());
+
+    const matchesCategory =
+      selectedCategory === "All" ||
+      p.category === selectedCategory;
+
+    return matchesSearch && matchesCategory;
+  });
 
   return (
     <div style={{ padding: 20 }}>
@@ -116,13 +138,46 @@ export default function Home() {
         />
       </div>
 
+      {/* ================= CATEGORY FILTER ================= */}
+      <div
+        style={{
+          display: "flex",
+          gap: 10,
+          flexWrap: "wrap",
+          marginTop: 20,
+        }}
+      >
+        {CATEGORIES.map((cat) => (
+          <button
+            key={cat}
+            onClick={() => setSelectedCategory(cat)}
+            style={{
+              padding: "8px 12px",
+              borderRadius: 20,
+              border:
+                selectedCategory === cat
+                  ? "2px solid #e53935"
+                  : "1px solid #ccc",
+              background:
+                selectedCategory === cat ? "#e53935" : "#fff",
+              color:
+                selectedCategory === cat ? "#fff" : "#000", // ✅ BLACK TEXT
+              cursor: "pointer",
+              fontSize: 14,
+            }}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+
       {/* ================= BANNER ================= */}
       <div
         style={{
           background: "#fbe9e7",
           padding: 20,
           borderRadius: 6,
-          marginTop: 20,
+          marginTop: 25,
         }}
       >
         <h2>Everything you need for School & Office ✏️</h2>
@@ -130,9 +185,9 @@ export default function Home() {
       </div>
 
       {/* ================= PRODUCTS ================= */}
-      <h2 style={{ marginTop: 30 }}>Popular Products</h2>
+      <h2 style={{ marginTop: 30 }}>Products</h2>
 
-      {filteredProducts.length === 0 && <p>No products available</p>}
+      {filteredProducts.length === 0 && <p>No products found</p>}
 
       <div
         style={{
@@ -170,8 +225,9 @@ export default function Home() {
             <h3>{p.name}</h3>
             <p style={{ fontWeight: "bold" }}>₹{p.price}</p>
             <p style={{ fontSize: 12, color: "#555" }}>
-              Stock: {p.stock}
+              Category: <b>{p.category}</b>
             </p>
+            <p style={{ fontSize: 12 }}>Stock: {p.stock}</p>
 
             <button
               onClick={() => addToCart(p)}
