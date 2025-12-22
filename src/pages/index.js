@@ -1,6 +1,5 @@
 import Header from "../components/Header";
 import { useEffect, useState } from "react";
-import Link from "next/link";
 
 export default function Home() {
   const [products, setProducts] = useState([]);
@@ -32,131 +31,102 @@ export default function Home() {
     alert("Added to cart");
   }
 
-  // --------------------
-  // Load on page open
-  // --------------------
   useEffect(() => {
     fetchProducts();
   }, []);
 
   return (
-    <div style={{ padding: 20 }}>
-      {/* ================= HEADER ================= */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: 30,
-        }}
-      >
-        <h1>📘 Stationarywala</h1>
+    <>
+      {/* ✅ HEADER AT TOP */}
+      <Header />
 
-        <Link href="/cart">
-          <button
-            style={{
-              padding: "8px 14px",
-              background: "#e53935",
-              color: "#fff",
-              border: "none",
-              cursor: "pointer",
-              borderRadius: 4,
-            }}
-          >
-            🛒 Go to Cart
-          </button>
-        </Link>
-      </div>
+      <div style={{ padding: 20 }}>
+        {/* ================= BANNER ================= */}
+        <div
+          style={{
+            background: "#fbe9e7",
+            padding: 20,
+            borderRadius: 6,
+            marginBottom: 30,
+          }}
+        >
+          <h2>Everything you need for School & Office ✏️</h2>
+          <p>Notebooks, pens, files & more — at best prices</p>
+        </div>
 
-      {/* ================= BANNER ================= */}
-      <div
-        style={{
-          background: "#fbe9e7",
-          padding: 20,
-          borderRadius: 6,
-          marginBottom: 30,
-        }}
-      >
-        <h2>Everything you need for School & Office ✏️</h2>
-        <p>Notebooks, pens, files & more — at best prices</p>
-      </div>
+        {/* ================= PRODUCTS ================= */}
+        <h2 style={{ marginBottom: 15 }}>Popular Products</h2>
 
-      {/* ================= PRODUCTS ================= */}
-      <h2 style={{ marginBottom: 15 }}>Popular Products</h2>
+        {products.length === 0 && <p>No products available</p>}
 
-      {products.length === 0 && <p>No products available</p>}
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
-          gap: 20,
-        }}
-      >
-        {products.map((p) => (
-          <div
-            key={p._id}
-            style={{
-              border: "1px solid #ddd",
-              padding: 15,
-              borderRadius: 6,
-              background: "#fff",
-            }}
-          >
-            {/* Product Image (optional later) */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+            gap: 20,
+          }}
+        >
+          {products.map((p) => (
             <div
+              key={p._id}
               style={{
-                height: 140,
-                background: "#f5f5f5",
-                marginBottom: 10,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 12,
-                color: "#777",
+                border: "1px solid #ddd",
+                padding: 15,
+                borderRadius: 6,
+                background: "#fff",
               }}
             >
-              Image coming soon
+              <div
+                style={{
+                  height: 140,
+                  background: "#f5f5f5",
+                  marginBottom: 10,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 12,
+                  color: "#777",
+                }}
+              >
+                Image coming soon
+              </div>
+
+              <h3>{p.name}</h3>
+              <p style={{ fontWeight: "bold" }}>₹{p.price}</p>
+              <p style={{ fontSize: 12 }}>Stock: {p.stock}</p>
+
+              <button
+                onClick={() => addToCart(p)}
+                style={{
+                  marginTop: 10,
+                  width: "100%",
+                  padding: "8px 0",
+                  background: "#1976d2",
+                  color: "#fff",
+                  border: "none",
+                  cursor: "pointer",
+                  borderRadius: 4,
+                }}
+              >
+                Add to Cart
+              </button>
             </div>
+          ))}
+        </div>
 
-            <h3 style={{ margin: "5px 0" }}>{p.name}</h3>
-            <p style={{ fontWeight: "bold" }}>₹{p.price}</p>
-            <p style={{ fontSize: 12, color: "#555" }}>
-              Stock: {p.stock}
-            </p>
-
-            <button
-              onClick={() => addToCart(p)}
-              style={{
-                marginTop: 10,
-                width: "100%",
-                padding: "8px 0",
-                background: "#1976d2",
-                color: "#fff",
-                border: "none",
-                cursor: "pointer",
-                borderRadius: 4,
-              }}
-            >
-              Add to Cart
-            </button>
-          </div>
-        ))}
+        {/* ================= FOOTER ================= */}
+        <div
+          style={{
+            marginTop: 50,
+            paddingTop: 20,
+            borderTop: "1px solid #ddd",
+            textAlign: "center",
+            color: "#666",
+          }}
+        >
+          © {new Date().getFullYear()} Stationarywala. All rights reserved.
+        </div>
       </div>
-
-      {/* ================= FOOTER ================= */}
-      <div
-        style={{
-          marginTop: 50,
-          paddingTop: 20,
-          borderTop: "1px solid #ddd",
-          textAlign: "center",
-          color: "#666",
-        }}
-      >
-        © {new Date().getFullYear()} Stationarywala. All rights reserved.
-      </div>
-    </div>
+    </>
   );
 }
-
