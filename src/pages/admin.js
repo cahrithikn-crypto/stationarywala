@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 
 const CATEGORIES = [
   "Writing Instruments",
@@ -18,12 +18,11 @@ export default function Admin() {
   const [error, setError] = useState("");
 
   const [products, setProducts] = useState([]);
-  const [orders, setOrders] = useState([]);
 
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("");
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState(CATEGORIES[0]);
 
   async function login(e) {
     e.preventDefault();
@@ -45,6 +44,7 @@ export default function Admin() {
         })
       );
       setAuthorized(true);
+      fetchProducts();
     } else {
       setError("Wrong password");
     }
@@ -58,11 +58,6 @@ export default function Admin() {
   async function fetchProducts() {
     const res = await fetch("/api/products");
     setProducts(await res.json());
-  }
-
-  async function fetchOrders() {
-    const res = await fetch("/api/orders");
-    setOrders(await res.json());
   }
 
   async function addProduct(e) {
@@ -82,7 +77,8 @@ export default function Admin() {
     setName("");
     setPrice("");
     setStock("");
-    setCategory("");
+    setCategory(CATEGORIES[0]);
+
     fetchProducts();
   }
 
@@ -93,10 +89,10 @@ export default function Admin() {
 
   useEffect(() => {
     const session = JSON.parse(localStorage.getItem("admin_auth"));
+
     if (session && session.loggedIn && session.expires > Date.now()) {
       setAuthorized(true);
       fetchProducts();
-      fetchOrders();
     } else {
       localStorage.removeItem("admin_auth");
     }
@@ -126,28 +122,17 @@ export default function Admin() {
       <h1>Admin – Stationarywala</h1>
       <button onClick={logout}>Logout</button>
 
-      <h2>Add Product</h2>
-      <form onSubmit={addProduct}>
+      {/* ================= ADD PRODUCT ================= */}
+      <h2 style={{ marginTop: 30 }}>Add Product</h2>
+
+      <form onSubmit={addProduct} style={{ maxWidth: 400 }}>
         <input
           placeholder="Product name"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
+          style={{ width: "100%", marginBottom: 10 }}
         />
-
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          required
-          style={{ color: "#000" }} // ✅ BLACK TEXT
-        >
-          <option value="">Select Category</option>
-          {CATEGORIES.map((c) => (
-            <option key={c} value={c} style={{ color: "#000" }}>
-              {c}
-            </option>
-          ))}
-        </select>
 
         <input
           type="number"
@@ -155,6 +140,7 @@ export default function Admin() {
           value={price}
           onChange={(e) => setPrice(e.target.value)}
           required
+          style={{ width: "100%", marginBottom: 10 }}
         />
 
         <input
@@ -163,26 +149,43 @@ export default function Admin() {
           value={stock}
           onChange={(e) => setStock(e.target.value)}
           required
+          style={{ width: "100%", marginBottom: 10 }}
         />
 
-        <button type="submit">Add</button>
+        {/* ✅ CATEGORY DROPDOWN */}
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          style={{ width: "100%", marginBottom: 10 }}
+        >
+          {CATEGORIES.map((cat) => (
+            <option key={cat} value={cat}>
+              {cat}
+            </option>
+          ))}
+        </select>
+
+        <button type="submit">Add Product</button>
       </form>
 
-      <h2>Products</h2>
-      {products.map((p) => (
-        <div key={p._id}>
-          {p.name} – ₹{p.price} – Stock {p.stock} –{" "}
-          <b style={{ color: "#000" }}>{p.category}</b>
-          <button onClick={() => deleteProduct(p._id)}>Delete</button>
-        </div>
-      ))}
+      {/* ================= PRODUCT LIST ================= */}
+      <h2 style={{ marginTop: 40 }}>Products</h2>
 
-      <h2 style={{ marginTop: 30 }}>Orders</h2>
-      {orders.length === 0 && <p>No orders yet</p>}
-      {orders.map((o) => (
-        <div key={o._id} style={{ border: "1px solid #ccc", padding: 10 }}>
-          <div>Total: ₹{o.total}</div>
-          <div>Status: {o.status || "Paid"}</div>
+      {products.map((p) => (
+        <div
+          key={p._id}
+          style={{
+            border: "1px solid #ddd",
+            padding: 10,
+            marginBottom: 10,
+          }}
+        >
+          <strong>{p.name}</strong> – ₹{p.price}  
+          <div style={{ fontSize: 12 }}>
+            Category: <b>{p.category || "N/A"}</b> | Stock: {p.stock}
+          </div>
+
+          <button onClick={() => deleteProduct(p._id)}>Delete</button>
         </div>
       ))}
     </div>
