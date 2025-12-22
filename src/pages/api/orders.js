@@ -4,61 +4,39 @@ import Order from "../../models/Order";
 export default async function handler(req, res) {
   await dbConnect();
 
-  const BASE_URL =
-    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  // ✅ CREATE ORDER
+  if (req.method === "POST") {
+    const order = await Order.create({
+      ...req.body,
+      status: req.body.status || "Pending",
+      trackingNumber: "",
+      trackingLink: "",
+      createdAt: new Date(),
+    });
 
-  // ----------------------------
-  // GET (All orders OR single)
-  // ----------------------------
-  if (req.method === "GET") {
-    const { id } = req.query;
-
-    // 👉 Single order (for tracking page)
-    if (id) {
-      const order = await Order.findById(id);
-
-      if (!order) {
-        return res.status(404).json({ error: "Order not found" });
-      }
-
-      return res.status(200).json({
-        ...order.toObject(),
-        trackingLink: `${BASE_URL}/track/${order._id}`,
-      });
-    }
-
-    // 👉 All orders (admin)
-    const orders = await Order.find().sort({ createdAt: -1 });
-
-    const ordersWithTracking = orders.map((o) => ({
-      ...o.toObject(),
-      trackingLink: `${BASE_URL}/track/${o._id}`,
-    }));
-
-    return res.status(200).json(ordersWithTracking);
+    return res.status(201).json({
+      success: true,
+      orderId: order._id,
+    });
   }
 
-  // ----------------------------
-  // UPDATE order (status / tracking number)
-  // ----------------------------
-  if (req.method === "PUT") {
-    const { id, status, trackingNumber } = req.body;
+  // ✅ GET ORDERS (ADMIN)
+  if (req.method === "GET") {
+    const orders = await Order.find().sort({ createdAt: -1 });
+    return res.status(200).json(orders);
+  }
 
-    if (!id) {
-      return res.status(400).json({ error: "Order ID required" });
-    }
+  // ✅ UPDATE ORDER (ADMIN)
+  if (req.method === "PUT") {
+    const { id, status, trackingNumber, trackingLink } = req.body;
 
     const update = {};
     if (status) update.status = status;
-    if (trackingNumber !== undefined)
-      update.trackingNumber = trackingNumber;
+    if (trackingNumber !== undefined) update.trackingNumber = trackingNumber;
+    if (trackingLink !== undefined) update.trackingLink = trackingLink;
 
     await Order.findByIdAndUpdate(id, update);
-
-    return res.status(200).json({
-      success: true,
-      trackingLink: `${BASE_URL}/track/${id}`,
-    });
+    return res.status(200).json({ success: true });
   }
 
   res.status(405).json({ error: "Method not allowed" });
