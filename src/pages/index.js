@@ -1,191 +1,230 @@
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import Header from "../components/Header";
 
 export default function Home() {
-  const [products, setProducts] = useState([]);
-  const [searchText, setSearchText] = useState("");
-  const [searchHistory, setSearchHistory] = useState([]);
+const [products, setProducts] = useState([]);
+const [selectedCategory, setSelectedCategory] = useState("All");
 
-  // ================= FETCH PRODUCTS =================
-  async function fetchProducts() {
-    const res = await fetch("/api/products");
-    const data = await res.json();
-    setProducts(data);
-  }
+// --------------------
+// Categories
+// --------------------
+const categories = [
+"All",
+"Notebooks",
+"Pens & Writing",
+"Art & Craft",
+"Office Supplies",
+"School Supplies",
+"Files & Folders",
+"Calculators",
+];
 
-  // ================= LOAD ON PAGE =================
-  useEffect(() => {
-    fetchProducts();
+// --------------------
+// Fetch products
+// --------------------
+async function fetchProducts() {
+const res = await fetch("/api/products");
+const data = await res.json();
+setProducts(data);
+}
 
-    if (typeof window !== "undefined") {
-      const history =
-        JSON.parse(localStorage.getItem("search_history")) || [];
-      setSearchHistory(history);
-    }
-  }, []);
+// --------------------
+// Add to cart
+// --------------------
+function addToCart(product) {
+const cart = JSON.parse(localStorage.getItem("cart")) || [];
+const existing = cart.find((item) => item._id === product._id);
 
-  // ================= SEARCH FILTER =================
-  const filteredProducts = products.filter((p) =>
-    p.name.toLowerCase().includes(searchText.toLowerCase())
-  );
+if (existing) {
+existing.qty += 1;
+} else {
+cart.push({ ...product, qty: 1 });
+}
 
-  // ================= ADD TO CART =================
-  function addToCart(product) {
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    const existing = cart.find((i) => i._id === product._id);
+localStorage.setItem("cart", JSON.stringify(cart));
+alert("Added to cart");
+}
 
-    if (existing) {
-      existing.qty += 1;
-    } else {
-      cart.push({ ...product, qty: 1 });
-    }
+// --------------------
+// Load on page open
+// --------------------
+useEffect(() => {
+fetchProducts();
+}, []);
 
-    localStorage.setItem("cart", JSON.stringify(cart));
-    alert("Added to cart");
-  }
+// --------------------
+// Filter products
+// --------------------
+const filteredProducts =
+selectedCategory === "All"
+? products
+: products.filter(
+(p) =>
+p.category &&
+p.category.toLowerCase() === selectedCategory.toLowerCase()
+);
 
-  return (
-    <>
-      {/* HEADER WITH CATEGORIES */}
-      <Header showCategories={true} />
+return (
+<>
+{/* ===== HEADER ===== */}
+<Header />
 
-      <div style={{ padding: 30, maxWidth: 1200, margin: "auto" }}>
-        {/* ================= SEARCH ================= */}
-        <input
-          type="text"
-          placeholder="Search stationery items..."
-          value={searchText}
-          onChange={(e) => {
-            const value = e.target.value;
-            setSearchText(value);
+<div style={{ padding: 20, maxWidth: 1300, margin: "auto" }}>
+{/* ===== HERO / BANNER ===== */}
+<div
+style={{
+background: "#fbe9e7",
+padding: 25,
+borderRadius: 6,
+marginBottom: 30,
+}}
+>
+<h1 style={{ marginBottom: 10 }}>
+Everything for School & Office 📚
+</h1>
+<p style={{ color: "#555" }}>
+Pens, notebooks, files & more — delivered to your doorstep
+</p>
 
-            if (value.trim().length > 2) {
-              let history =
-                JSON.parse(localStorage.getItem("search_history")) || [];
-
-              history = history.filter((h) => h !== value);
-              history.unshift(value);
-              history = history.slice(0, 5);
-
-              localStorage.setItem(
-                "search_history",
-                JSON.stringify(history)
-              );
-              setSearchHistory(history);
-            }
-          }}
-          style={{
-            width: "100%",
-            padding: "12px 16px",
-            fontSize: 16,
-            border: "1px solid #bbb",
-            borderRadius: 6,
-            marginBottom: 10,
-          }}
-        />
-
-        {/* ================= SEARCH HISTORY ================= */}
-        {searchHistory.length > 0 && (
-          <div
-            style={{
-              background: "#fff",
-              border: "1px solid #ddd",
-              borderRadius: 6,
-              padding: 10,
-              marginBottom: 20,
-            }}
-          >
-            <div
+          <Link href="/cart">
+            <button
               style={{
-                display: "flex",
-                justifyContent: "space-between",
-                marginBottom: 6,
+                marginTop: 15,
+                padding: "10px 20px",
+                background: "#d32f2f",
+                color: "#fff",
+                border: "none",
+                borderRadius: 4,
+                cursor: "pointer",
+                fontSize: 15,
               }}
             >
-              <b>Recent Searches</b>
-              <span
-                style={{ color: "#d32f2f", cursor: "pointer", fontSize: 12 }}
-                onClick={() => {
-                  localStorage.removeItem("search_history");
-                  setSearchHistory([]);
-                }}
-              >
-                Clear
-              </span>
-            </div>
+              🛒 Go to Cart
+            </button>
+          </Link>
+</div>
 
-            {searchHistory.map((item, i) => (
-              <div
-                key={i}
-                onClick={() => setSearchText(item)}
-                style={{
-                  cursor: "pointer",
-                  padding: "4px 0",
-                  color: "#333",
-                }}
-              >
-                🔍 {item}
-              </div>
-            ))}
-          </div>
-        )}
+{/* ===== CATEGORIES ===== */}
+<h2 style={{ marginBottom: 10 }}>Shop by Category</h2>
 
-        {/* ================= PRODUCTS ================= */}
-        <h2>Products</h2>
+<div
+style={{
+display: "flex",
+gap: 10,
+flexWrap: "wrap",
+marginBottom: 30,
+}}
+>
+{categories.map((cat) => (
+<button
+key={cat}
+onClick={() => setSelectedCategory(cat)}
+style={{
+padding: "8px 14px",
+borderRadius: 20,
+border:
+selectedCategory === cat
+? "2px solid #d32f2f"
+: "1px solid #ccc",
+background:
+selectedCategory === cat ? "#d32f2f" : "#fff",
+color: selectedCategory === cat ? "#fff" : "#000",
+cursor: "pointer",
+fontSize: 14,
+}}
+>
+{cat}
+</button>
+))}
+</div>
 
-        {filteredProducts.length === 0 && <p>No products found</p>}
+{/* ===== PRODUCTS ===== */}
+<h2 style={{ marginBottom: 15 }}>
+{selectedCategory === "All"
+? "Popular Products"
+: selectedCategory}
+</h2>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
-            gap: 20,
-          }}
-        >
-          {filteredProducts.map((p) => (
-            <div
-              key={p._id}
-              style={{
-                border: "1px solid #ddd",
-                padding: 15,
-                borderRadius: 6,
-                background: "#fff",
-              }}
-            >
-              {p.image && (
-                <img
-                  src={p.image}
-                  alt={p.name}
-                  style={{
-                    width: "100%",
-                    height: 140,
-                    objectFit: "contain",
-                    marginBottom: 10,
-                  }}
-                />
-              )}
+{filteredProducts.length === 0 && (
+<p>No products available</p>
+)}
 
-              <h3>{p.name}</h3>
-              <p>₹{p.price}</p>
+<div
+style={{
+display: "grid",
+gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+gap: 20,
+}}
+>
+{filteredProducts.map((p) => (
+<div
+key={p._id}
+style={{
+border: "1px solid #ddd",
+padding: 15,
+borderRadius: 6,
+background: "#fff",
+}}
+>
+{/* IMAGE PLACEHOLDER */}
+<div
+style={{
+height: 140,
+background: "#f5f5f5",
+marginBottom: 10,
+display: "flex",
+alignItems: "center",
+justifyContent: "center",
+fontSize: 12,
+color: "#777",
+}}
+>
+Product Image
+</div>
 
-              <button
-                onClick={() => addToCart(p)}
-                style={{
-                  width: "100%",
-                  padding: "8px",
-                  background: "#d32f2f",
-                  color: "#fff",
-                  border: "none",
-                  cursor: "pointer",
-                  borderRadius: 4,
-                }}
-              >
-                Add to Cart
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-    </>
-  );
+<h3 style={{ margin: "5px 0" }}>{p.name}</h3>
+<p style={{ fontWeight: "bold", margin: "5px 0" }}>
+₹{p.price}
+</p>
+
+<p style={{ fontSize: 12, color: "#555" }}>
+Stock: {p.stock}
+</p>
+
+<button
+onClick={() => addToCart(p)}
+style={{
+marginTop: 10,
+width: "100%",
+padding: "8px 0",
+background: "#1976d2",
+color: "#fff",
+border: "none",
+cursor: "pointer",
+borderRadius: 4,
+}}
+>
+Add to Cart
+</button>
+</div>
+))}
+</div>
+
+{/* ===== FOOTER ===== */}
+<div
+style={{
+marginTop: 60,
+paddingTop: 20,
+borderTop: "1px solid #ddd",
+textAlign: "center",
+color: "#666",
+fontSize: 14,
+}}
+>
+© {new Date().getFullYear()} Stationarywala — All rights reserved
+</div>
+</div>
+</>
+);
 }
