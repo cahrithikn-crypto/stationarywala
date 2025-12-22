@@ -1,16 +1,17 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import Header from "../components/Header";
 
 export default function Checkout() {
   const router = useRouter();
   const [cart, setCart] = useState([]);
   const [paymentMethod, setPaymentMethod] = useState("COD");
-  const [loading, setLoading] = useState(false);
 
-  // Customer details
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
+  const [form, setForm] = useState({
+    name: "",
+    phone: "",
+    address: "",
+  });
 
   // Load cart
   useEffect(() => {
@@ -18,132 +19,188 @@ export default function Checkout() {
     setCart(storedCart);
   }, []);
 
+  // Total amount
   const total = cart.reduce(
     (sum, item) => sum + item.price * item.qty,
     0
   );
 
+  // Place order (NO real payment yet)
   async function placeOrder() {
-    if (!name || !phone || !address) {
+    if (!form.name || !form.phone || !form.address) {
       alert("Please fill all details");
       return;
     }
 
-    setLoading(true);
+    const orderData = {
+      customer: form,
+      items: cart,
+      total,
+      paymentMethod,
+      status: paymentMethod === "COD" ? "Pending" : "Paid",
+    };
 
-    const res = await fetch("/api/orders", {
+    await fetch("/api/orders", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        customer: { name, phone, address },
-        items: cart,
-        total,
-        paymentMethod,
-        status: paymentMethod === "COD" ? "Pending" : "Paid",
-      }),
+      body: JSON.stringify(orderData),
     });
 
-    if (res.ok) {
-      localStorage.removeItem("cart");
-      alert("Order placed successfully!");
-      router.push("/");
-    } else {
-      alert("Something went wrong");
-    }
-
-    setLoading(false);
+    localStorage.removeItem("cart");
+    alert("Order placed successfully!");
+    router.push("/");
   }
 
   return (
-    <div style={{ padding: 30, maxWidth: 700, margin: "auto" }}>
-      <h1>Checkout</h1>
+    <>
+      <Header />
 
-      {/* CUSTOMER DETAILS */}
-      <h3>Customer Details</h3>
+      <div style={{ padding: 30, maxWidth: 900, margin: "auto" }}>
+        <h1>Checkout</h1>
 
-      <input
-        placeholder="Full Name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        style={{ width: "100%", padding: 10, marginBottom: 10 }}
-      />
-
-      <input
-        placeholder="Phone Number"
-        value={phone}
-        onChange={(e) => setPhone(e.target.value)}
-        style={{ width: "100%", padding: 10, marginBottom: 10 }}
-      />
-
-      <textarea
-        placeholder="Delivery Address"
-        value={address}
-        onChange={(e) => setAddress(e.target.value)}
-        style={{ width: "100%", padding: 10, marginBottom: 20 }}
-      />
-
-      {/* PAYMENT METHOD */}
-      <h3>Payment Method</h3>
-
-      <label style={{ display: "block", marginBottom: 8 }}>
-        <input
-          type="radio"
-          value="COD"
-          checked={paymentMethod === "COD"}
-          onChange={() => setPaymentMethod("COD")}
-        />{" "}
-        Cash on Delivery (COD)
-      </label>
-
-      <label style={{ display: "block", marginBottom: 20 }}>
-        <input
-          type="radio"
-          value="UPI"
-          checked={paymentMethod === "UPI"}
-          onChange={() => setPaymentMethod("UPI")}
-        />{" "}
-        UPI (Pay & confirm manually)
-      </label>
-
-      {/* ORDER SUMMARY */}
-      <h3>Order Summary</h3>
-
-      {cart.map((item) => (
+        {/* ================= CART SUMMARY ================= */}
         <div
-          key={item._id}
           style={{
-            display: "flex",
-            justifyContent: "space-between",
-            marginBottom: 6,
+            border: "1px solid #ddd",
+            padding: 20,
+            borderRadius: 6,
+            marginBottom: 30,
           }}
         >
-          <span>
-            {item.name} × {item.qty}
-          </span>
-          <span>₹{item.price * item.qty}</span>
+          <h2>Order Summary</h2>
+
+          {cart.length === 0 && <p>Your cart is empty.</p>}
+
+          {cart.map((item) => (
+            <div
+              key={item._id}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: 10,
+              }}
+            >
+              <div>
+                {item.name} × {item.qty}
+              </div>
+              <div>₹{item.price * item.qty}</div>
+            </div>
+          ))}
+
+          <hr />
+          <h3>Total: ₹{total}</h3>
         </div>
-      ))}
 
-      <hr />
-      <h2>Total: ₹{total}</h2>
+        {/* ================= DELIVERY DETAILS ================= */}
+        <div
+          style={{
+            border: "1px solid #ddd",
+            padding: 20,
+            borderRadius: 6,
+            marginBottom: 30,
+          }}
+        >
+          <h2>Delivery Details</h2>
 
-      {/* PLACE ORDER */}
-      <button
-        onClick={placeOrder}
-        disabled={loading}
-        style={{
-          marginTop: 20,
-          width: "100%",
-          padding: "14px",
-          background: "#d32f2f",
-          color: "#fff",
-          border: "none",
-          fontSize: 16,
-          cursor: "pointer",
-        }}
-      >
-        {loading ? "Placing Order..." : "Place Order"}
-      </button>
-    </div>
+          <input
+            placeholder="Full Name"
+            value={form.name}
+            onChange={(e) =>
+              setForm({ ...form, name: e.target.value })
+            }
+            style={inputStyle}
+          />
+
+          <input
+            placeholder="Phone Number"
+            value={form.phone}
+            onChange={(e) =>
+              setForm({ ...form, phone: e.target.value })
+            }
+            style={inputStyle}
+          />
+
+          <textarea
+            placeholder="Full Address"
+            value={form.address}
+            onChange={(e) =>
+              setForm({ ...form, address: e.target.value })
+            }
+            style={{ ...inputStyle, height: 80 }}
+          />
+        </div>
+
+        {/* ================= PAYMENT ================= */}
+        <div
+          style={{
+            border: "1px solid #ddd",
+            padding: 20,
+            borderRadius: 6,
+            marginBottom: 30,
+          }}
+        >
+          <h2>Payment Method</h2>
+
+          <label style={radioStyle}>
+            <input
+              type="radio"
+              value="COD"
+              checked={paymentMethod === "COD"}
+              onChange={() => setPaymentMethod("COD")}
+            />
+            Cash on Delivery (COD)
+          </label>
+
+          <label style={radioStyle}>
+            <input
+              type="radio"
+              value="UPI"
+              checked={paymentMethod === "UPI"}
+              onChange={() => setPaymentMethod("UPI")}
+            />
+            UPI (Google Pay / PhonePe / Paytm)
+          </label>
+
+          {paymentMethod === "UPI" && (
+            <p style={{ color: "#555", marginTop: 10 }}>
+              ⚠️ UPI payment integration coming soon.  
+              Order will be marked as <strong>Paid</strong> for now.
+            </p>
+          )}
+        </div>
+
+        {/* ================= PLACE ORDER ================= */}
+        <button
+          onClick={placeOrder}
+          style={{
+            width: "100%",
+            padding: "14px",
+            background: "#d32f2f",
+            color: "#fff",
+            border: "none",
+            fontSize: 16,
+            cursor: "pointer",
+            borderRadius: 4,
+          }}
+        >
+          Place Order
+        </button>
+      </div>
+    </>
   );
 }
+
+// ================= STYLES =================
+const inputStyle = {
+  width: "100%",
+  padding: 10,
+  marginBottom: 12,
+  borderRadius: 4,
+  border: "1px solid #ccc",
+};
+
+const radioStyle = {
+  display: "block",
+  marginBottom: 10,
+  cursor: "pointer",
+};
