@@ -200,16 +200,40 @@ export default function Admin() {
 
           <div style={{ marginTop: 8 }}>
             <b>Tracking:</b>{" "}
-            <input
-              defaultValue={o.trackingNumber || ""}
-              placeholder="Tracking number"
-              onBlur={(e) =>
-                updateOrder(o._id, { trackingNumber: e.target.value })
-              }
-            />
+           <div style={{ marginTop: 8 }}>
+  <b>Tracking Number:</b>
+  <input
+    defaultValue={o.trackingNumber || ""}
+    placeholder="Enter tracking number"
+    onBlur={(e) => {
+      const trackingNumber = e.target.value;
+
+      // Auto-generate tracking link (example: Delhivery / generic)
+      const trackingLink = trackingNumber
+        ? `https://www.google.com/search?q=${trackingNumber}+courier+tracking`
+        : "";
+
+      updateOrder(o._id, {
+        trackingNumber,
+        trackingLink,
+      });
+    }}
+  />
+</div>
+
+{o.trackingLink && (
+  <div style={{ marginTop: 6 }}>
+    <b>Tracking Link:</b>{" "}
+    <a href={o.trackingLink} target="_blank" style={{ color: "#d32f2f" }}>
+      Open Tracking
+    </a>
+  </div>
+)}
+
           </div>
         </div>
       ))}
     </div>
   );
 }
+
