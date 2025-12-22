@@ -23,18 +23,16 @@ export default function Admin() {
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("");
   const [category, setCategory] = useState(CATEGORIES[0]);
+  const [image, setImage] = useState("");
 
   async function login(e) {
     e.preventDefault();
-
     const res = await fetch("/api/admin-login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ password }),
     });
-
     const data = await res.json();
-
     if (data.success) {
       localStorage.setItem(
         "admin_auth",
@@ -45,9 +43,7 @@ export default function Admin() {
       );
       setAuthorized(true);
       fetchProducts();
-    } else {
-      setError("Wrong password");
-    }
+    } else setError("Wrong password");
   }
 
   function logout() {
@@ -62,7 +58,6 @@ export default function Admin() {
 
   async function addProduct(e) {
     e.preventDefault();
-
     await fetch("/api/products", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -71,14 +66,13 @@ export default function Admin() {
         price: Number(price),
         stock: Number(stock),
         category,
+        image,
       }),
     });
-
     setName("");
     setPrice("");
     setStock("");
-    setCategory(CATEGORIES[0]);
-
+    setImage("");
     fetchProducts();
   }
 
@@ -89,13 +83,10 @@ export default function Admin() {
 
   useEffect(() => {
     const session = JSON.parse(localStorage.getItem("admin_auth"));
-
     if (session && session.loggedIn && session.expires > Date.now()) {
       setAuthorized(true);
       fetchProducts();
-    } else {
-      localStorage.removeItem("admin_auth");
-    }
+    } else localStorage.removeItem("admin_auth");
   }, []);
 
   if (!authorized) {
@@ -110,81 +101,50 @@ export default function Admin() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          <button type="submit">Login</button>
+          <button>Login</button>
           {error && <p style={{ color: "red" }}>{error}</p>}
         </form>
       </div>
     );
   }
 
+  const totalStock = products.reduce((a, b) => a + b.stock, 0);
+  const inventoryValue = products.reduce(
+    (a, b) => a + b.price * b.stock,
+    0
+  );
+
   return (
     <div style={{ padding: 30 }}>
       <h1>Admin – Stationarywala</h1>
       <button onClick={logout}>Logout</button>
 
-      {/* ================= ADD PRODUCT ================= */}
-      <h2 style={{ marginTop: 30 }}>Add Product</h2>
+      {/* DASHBOARD */}
+      <div style={{ marginTop: 20 }}>
+        <b>Total Products:</b> {products.length} <br />
+        <b>Total Stock:</b> {totalStock} <br />
+        <b>Inventory Value:</b> ₹{inventoryValue}
+      </div>
 
+      <h2>Add Product</h2>
       <form onSubmit={addProduct} style={{ maxWidth: 400 }}>
-        <input
-          placeholder="Product name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-          style={{ width: "100%", marginBottom: 10 }}
-        />
-
-        <input
-          type="number"
-          placeholder="Price"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          required
-          style={{ width: "100%", marginBottom: 10 }}
-        />
-
-        <input
-          type="number"
-          placeholder="Stock"
-          value={stock}
-          onChange={(e) => setStock(e.target.value)}
-          required
-          style={{ width: "100%", marginBottom: 10 }}
-        />
-
-        {/* ✅ CATEGORY DROPDOWN */}
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          style={{ width: "100%", marginBottom: 10 }}
-        >
-          {CATEGORIES.map((cat) => (
-            <option key={cat} value={cat}>
-              {cat}
-            </option>
-          ))}
+        <input placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} required />
+        <input type="number" placeholder="Price" value={price} onChange={(e) => setPrice(e.target.value)} required />
+        <input type="number" placeholder="Stock" value={stock} onChange={(e) => setStock(e.target.value)} required />
+        <input placeholder="Image URL" value={image} onChange={(e) => setImage(e.target.value)} />
+        <select value={category} onChange={(e) => setCategory(e.target.value)}>
+          {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
         </select>
-
-        <button type="submit">Add Product</button>
+        <button>Add Product</button>
       </form>
 
-      {/* ================= PRODUCT LIST ================= */}
-      <h2 style={{ marginTop: 40 }}>Products</h2>
-
+      <h2>Products</h2>
       {products.map((p) => (
-        <div
-          key={p._id}
-          style={{
-            border: "1px solid #ddd",
-            padding: 10,
-            marginBottom: 10,
-          }}
-        >
-          <strong>{p.name}</strong> – ₹{p.price}  
-          <div style={{ fontSize: 12 }}>
-            Category: <b>{p.category || "N/A"}</b> | Stock: {p.stock}
-          </div>
-
+        <div key={p._id} style={{ border: "1px solid #ddd", padding: 10 }}>
+          <b>{p.name}</b> – ₹{p.price} – {p.category}
+          <br />
+          {p.image && <img src={p.image} width={80} />}
+          <br />
           <button onClick={() => deleteProduct(p._id)}>Delete</button>
         </div>
       ))}
