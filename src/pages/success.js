@@ -1,44 +1,54 @@
 import { useRouter } from "next/router";
 import Link from "next/link";
+import Header from "../components/Header";
 
 export default function Success() {
   const router = useRouter();
   const { orderId } = router.query;
 
-  if (!orderId) return null;
-
   return (
-    <div style={{ padding: 40, textAlign: "center" }}>
-      <h1>✅ Order Placed Successfully</h1>
+    <>
+      <Header />
 
-      <p>
-        <strong>Order ID:</strong>
-        <br />
-        <code>{orderId}</code>
-      </p>
+      <div style={{ padding: 40, textAlign: "center" }}>
+        <h1>🎉 Order Placed Successfully!</h1>
 
-      <p style={{ marginTop: 20 }}>
-        Track your order here:
-      </p>
+        {orderId && (
+          <>
+            <p>Your Order ID:</p>
+            <h2 style={{ color: "#d32f2f" }}>{orderId}</h2>
 
-      <Link href={`/track/${orderId}`}>
-        <button
-          style={{
-            padding: "10px 20px",
-            background: "#d32f2f",
-            color: "#fff",
-            border: "none",
-            cursor: "pointer",
-            borderRadius: 4,
-          }}
-        >
-          Track Order
-        </button>
-      </Link>
+            <Link href={`/track/${orderId}`}>
+              <button style={btnStyle}>Track Your Order</button>
+            </Link>
+          </>
+        )}
 
-      <div style={{ marginTop: 30 }}>
-        <Link href="/">← Continue Shopping</Link>
+        <br /><br />
+
+        <Link href="/">
+          <button style={secondaryBtn}>Continue Shopping</button>
+        </Link>
       </div>
-    </div>
+    </>
   );
 }
+
+const btnStyle = {
+  padding: "12px 24px",
+  background: "#d32f2f",
+  color: "#fff",
+  border: "none",
+  cursor: "pointer",
+  fontSize: 16,
+  borderRadius: 4,
+};
+
+const secondaryBtn = {
+  padding: "10px 20px",
+  background: "#555",
+  color: "#fff",
+  border: "none",
+  cursor: "pointer",
+  borderRadius: 4,
+};
