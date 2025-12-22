@@ -61,7 +61,7 @@ export default function Checkout() {
 
   return (
     <>
-      <Header />
+      <Header showCategories={false} showCart={false} />
 
       <div style={{ padding: 30, maxWidth: 900, margin: "auto" }}>
         <h1>Checkout</h1>
@@ -185,3 +185,4 @@ const orderBtn = {
   cursor: "pointer",
   borderRadius: 4,
 };
+
