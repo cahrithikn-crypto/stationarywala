@@ -1,10 +1,24 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/router";
+
+const MOST_SEARCHED = [
+  "Notebooks",
+  "Pens",
+  "School Bags",
+  "Art Supplies",
+  "Office Files",
+  "Calculators",
+];
 
 export default function Header({ showCategories = true }) {
   const [count, setCount] = useState(0);
+  const [query, setQuery] = useState("");
+  const [history, setHistory] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const router = useRouter();
 
-  // ✅ Runs ONLY in browser
+  // ---------------- CART COUNT (CLIENT ONLY) ----------------
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -15,28 +29,134 @@ export default function Header({ showCategories = true }) {
     }
 
     updateCartCount();
-
     window.addEventListener("storage", updateCartCount);
     return () => window.removeEventListener("storage", updateCartCount);
   }, []);
 
+  // ---------------- LOAD SEARCH HISTORY ----------------
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const saved = JSON.parse(localStorage.getItem("search_history")) || [];
+    setHistory(saved);
+  }, []);
+
+  // ---------------- HANDLE SEARCH ----------------
+  function performSearch(text) {
+    if (!text.trim()) return;
+
+    const updated = [
+      text,
+      ...history.filter((h) => h !== text),
+    ].slice(0, 5);
+
+    localStorage.setItem("search_history", JSON.stringify(updated));
+    setHistory(updated);
+    setShowDropdown(false);
+
+    router.push("/?search=" + encodeURIComponent(text));
+  }
+
+  function onSubmit(e) {
+    e.preventDefault();
+    performSearch(query);
+  }
+
   return (
     <>
-      {/* ================= TOP BAR ================= */}
+      {/* ================= TOP RED BAR ================= */}
       <header
         style={{
           background: "#d32f2f",
           color: "#fff",
-          padding: "15px 30px",
+          padding: "12px 30px",
           display: "flex",
-          justifyContent: "space-between",
           alignItems: "center",
+          gap: 20,
         }}
       >
+        {/* LOGO */}
         <Link href="/" style={{ textDecoration: "none", color: "#fff" }}>
           <h2 style={{ margin: 0 }}>Stationarywala</h2>
         </Link>
 
+        {/* SEARCH (AMAZON STYLE) */}
+        <div style={{ position: "relative", flex: 1, maxWidth: 520 }}>
+          <form onSubmit={onSubmit}>
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onFocus={() => setShowDropdown(true)}
+              placeholder="Search stationery products"
+              style={{
+                width: "100%",
+                padding: "9px 12px",
+                borderRadius: 4,
+                border: "none",
+                outline: "none",
+              }}
+            />
+          </form>
+
+          {/* SEARCH DROPDOWN */}
+          {showDropdown && (history.length > 0 || MOST_SEARCHED.length > 0) && (
+            <div
+              style={{
+                position: "absolute",
+                top: "105%",
+                left: 0,
+                right: 0,
+                background: "#fff",
+                color: "#000",
+                borderRadius: 4,
+                boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                zIndex: 1000,
+                padding: 10,
+              }}
+            >
+              {/* RECENT */}
+              {history.length > 0 && (
+                <>
+                  <div style={{ fontSize: 12, fontWeight: "bold", marginBottom: 6 }}>
+                    Recent Searches
+                  </div>
+                  {history.map((h) => (
+                    <div
+                      key={h}
+                      onClick={() => performSearch(h)}
+                      style={{
+                        padding: "6px 4px",
+                        cursor: "pointer",
+                        fontSize: 14,
+                      }}
+                    >
+                      🔁 {h}
+                    </div>
+                  ))}
+                </>
+              )}
+
+              {/* MOST SEARCHED */}
+              <div style={{ fontSize: 12, fontWeight: "bold", margin: "8px 0 6px" }}>
+                Most Searched
+              </div>
+              {MOST_SEARCHED.map((m) => (
+                <div
+                  key={m}
+                  onClick={() => performSearch(m)}
+                  style={{
+                    padding: "6px 4px",
+                    cursor: "pointer",
+                    fontSize: 14,
+                  }}
+                >
+                  🔥 {m}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* CART */}
         <Link
           href="/cart"
           style={{
@@ -44,6 +164,7 @@ export default function Header({ showCategories = true }) {
             textDecoration: "none",
             position: "relative",
             fontSize: 18,
+            whiteSpace: "nowrap",
           }}
         >
           🛒 Cart
@@ -67,7 +188,7 @@ export default function Header({ showCategories = true }) {
         </Link>
       </header>
 
-      {/* ================= CATEGORIES (ONLY HOMEPAGE) ================= */}
+      {/* ================= CATEGORIES (HOMEPAGE ONLY) ================= */}
       {showCategories && (
         <nav
           style={{
