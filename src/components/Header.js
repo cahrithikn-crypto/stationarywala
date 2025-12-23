@@ -81,21 +81,45 @@ export default function Header({ showCategories = true }) {
 
         {/* SEARCH (AMAZON STYLE) */}
         <div style={{ position: "relative", flex: 1, maxWidth: 520 }}>
-          <form onSubmit={onSubmit}>
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onFocus={() => setShowDropdown(true)}
-              placeholder="Search stationery products"
-              style={{
-                width: "100%",
-                padding: "9px 12px",
-                borderRadius: 4,
-                border: "none",
-                outline: "none",
-              }}
-            />
-          </form>
+          <form
+  onSubmit={onSubmit}
+  style={{
+    display: "flex",
+    alignItems: "center",
+    background: "#fff",
+    borderRadius: 4,
+    overflow: "hidden",
+  }}
+>
+  <input
+    value={query}
+    onChange={(e) => setQuery(e.target.value)}
+    onFocus={() => setShowDropdown(true)}
+    placeholder="Search stationery, notebooks, pens..."
+    style={{
+      flex: 1,
+      padding: "10px 12px",
+      border: "none",
+      outline: "none",
+      fontSize: 14,
+    }}
+  />
+  <button
+    type="submit"
+    style={{
+      background: "#b71c1c",
+      color: "#fff",
+      border: "none",
+      padding: "0 16px",
+      height: "100%",
+      cursor: "pointer",
+      fontSize: 16,
+    }}
+  >
+    🔍
+  </button>
+</form>
+
 
           {/* SEARCH DROPDOWN */}
           {showDropdown && (history.length > 0 || MOST_SEARCHED.length > 0) && (
@@ -218,3 +242,4 @@ export default function Header({ showCategories = true }) {
     </>
   );
 }
+
