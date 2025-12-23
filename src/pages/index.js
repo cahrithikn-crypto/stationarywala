@@ -90,39 +90,7 @@ Pens, notebooks, files & more — delivered to your doorstep
           
 </div>
 
-{/* ===== CATEGORIES ===== */}
-<h2 style={{ marginBottom: 10 }}>Shop by Category</h2>
 
-<div
-style={{
-display: "flex",
-gap: 10,
-flexWrap: "wrap",
-marginBottom: 30,
-}}
->
-{categories.map((cat) => (
-<button
-key={cat}
-onClick={() => setSelectedCategory(cat)}
-style={{
-padding: "8px 14px",
-borderRadius: 20,
-border:
-selectedCategory === cat
-? "2px solid #d32f2f"
-: "1px solid #ccc",
-background:
-selectedCategory === cat ? "#d32f2f" : "#fff",
-color: selectedCategory === cat ? "#fff" : "#000",
-cursor: "pointer",
-fontSize: 14,
-}}
->
-{cat}
-</button>
-))}
-</div>
 
 {/* ===== PRODUCTS ===== */}
 <h2 style={{ marginBottom: 15 }}>
@@ -213,4 +181,5 @@ fontSize: 14,
 </>
 );
 }
+
 
