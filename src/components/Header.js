@@ -212,34 +212,8 @@ export default function Header({ showCategories = true }) {
         </Link>
       </header>
 
-      {/* ================= CATEGORIES (HOMEPAGE ONLY) ================= */}
-      {showCategories && (
-        <nav
-          style={{
-            background: "#fff",
-            padding: "10px 30px",
-            borderBottom: "1px solid #ddd",
-            display: "flex",
-            gap: 20,
-            fontWeight: 500,
-          }}
-        >
-          {[
-            "Notebooks",
-            "Pens",
-            "Pencils",
-            "Files & Folders",
-            "Art Supplies",
-            "School Kits",
-            "Office Supplies",
-          ].map((c) => (
-            <span key={c} style={{ cursor: "pointer", color: "#000" }}>
-              {c}
-            </span>
-          ))}
-        </nav>
-      )}
     </>
   );
 }
+
 
