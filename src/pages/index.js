@@ -87,22 +87,7 @@ Everything for School & Office 📚
 Pens, notebooks, files & more — delivered to your doorstep
 </p>
 
-          <Link href="/cart">
-            <button
-              style={{
-                marginTop: 15,
-                padding: "10px 20px",
-                background: "#d32f2f",
-                color: "#fff",
-                border: "none",
-                borderRadius: 4,
-                cursor: "pointer",
-                fontSize: 15,
-              }}
-            >
-              🛒 Go to Cart
-            </button>
-          </Link>
+          
 </div>
 
 {/* ===== CATEGORIES ===== */}
@@ -228,3 +213,4 @@ fontSize: 14,
 </>
 );
 }
+
